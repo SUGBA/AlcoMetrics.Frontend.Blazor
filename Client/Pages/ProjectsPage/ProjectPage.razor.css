@@ -1,0 +1,22 @@
+﻿.contentRowsContainer {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.selectStartDataInputType {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+}
+
+@media(max-width: 767px) {
+    .contentRowsContainer {
+        flex-direction: column;
+    }
+
+    .selectStartDataInputType {
+        width: 70%;
+    }
+}

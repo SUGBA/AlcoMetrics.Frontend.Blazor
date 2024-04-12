@@ -1,0 +1,9 @@
+﻿<button class="baseButton" @onclick="ButtonEvent"><span>@Content</span></button>
+
+@code {
+    [Parameter]
+    public string Content { get; set; } = "Нажать";
+
+    [Parameter]
+    public EventCallback ButtonEvent { get; set; }
+}

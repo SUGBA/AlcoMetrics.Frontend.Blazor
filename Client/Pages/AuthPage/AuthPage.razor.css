@@ -1,0 +1,38 @@
+﻿.contentRowsContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height:100vh;
+}
+
+.authContainer {
+    width: 40%;
+}
+
+.signup,
+.login {
+    color:black;
+    width: 50%;
+    float: left;
+    height: 60px;
+    line-height: 60px;
+    text-align: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+}
+
+.login {
+    background: white;
+}
+
+.signup {
+    background: white;
+}
+
+@media(max-width: 767px) {
+    .contentRowsContainer {
+        flex-direction: column;
+    }
+}

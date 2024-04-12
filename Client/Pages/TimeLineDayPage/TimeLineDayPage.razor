@@ -1,0 +1,223 @@
+﻿@page "/TimeLineDayPage"
+@using Client.Pages.TimeLineDayPage.Components
+@using Client.Pages.TimeLineDayPage.Models
+@using Client.Pages.TimeLineDayPage.Request
+@using Client.Pages.TimeLinePage.Request
+@using Client.SharedComponents.Buttons
+@using Client.SharedComponents.Cards
+@using Client.SharedComponents.Modal
+@using Client.SharedComponents.Selectors
+@using Client.SharedComponents.Tables.Models
+@rendermode RenderMode.InteractiveWebAssembly
+
+
+<div class="contentRowsContainer">
+    <div class="buttonContainer">
+        <BaseButton1 Content="Справка" />
+    </div>
+    <div class="contentContainer">
+        <div class="leftContentContainer">
+            <BaseCard1 Content="CardData" />
+        </div>
+        <div class="rightContentContainer">
+            <div class="listProjects">
+                <DefaultTable2 Headers="Headers" Buttons="Buttons" Data="Data" />
+            </div>
+            <div class="selecterContainer">
+                <div class="leftselecterContainer">
+                    <div class="selectStartDataInputType">
+                        <BaseSelector Options="ActualizationOptions" TEnumType="UpdatingMethodEnum" SelectOptionEvent="SelectUpdatingMethod" />
+                    </div>
+                    @UpdateIndicatorsForm
+                </div>
+
+                <div class="rightselecterContainer">
+                    <div class="selectStartDataInputType">
+                        <BaseSelector Options="AddEventOptions" TEnumType="NewEventTypeEnum" SelectOptionEvent="SelectAddNewEventType" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    /// <summary>
+    /// Список показателей для карточки
+    /// </summary>
+    public Dictionary<string, string> CardData { get; set; } = new();
+
+    /// <summary>
+    /// Содержимое таблицы
+    /// </summary>
+    public List<Row> Data { get; set; } = new();
+
+    /// <summary>
+    /// Заголовки таблицы
+    /// </summary>
+    public List<string> Headers { get; set; } = new();
+
+    /// <summary>
+    /// Кнопки
+    /// </summary>
+    public List<ButtonModel> Buttons { get; set; } = new();
+
+    /// <summary>
+    /// Значения селектора с выбором способа актуализации
+    /// </summary>
+    public Dictionary<string, UpdatingMethodEnum> ActualizationOptions { get; set; } = new();
+
+    /// <summary>
+    /// Значения селектора с выбором добавляемого события
+    /// </summary>
+    public Dictionary<string, NewEventTypeEnum> AddEventOptions { get; set; } = new();
+
+    /// <summary>
+    /// Форма для актуализации показаний
+    /// </summary>
+    private RenderFragment UpdateIndicatorsForm = builder => { };
+
+    protected override void OnInitialized()
+    {
+        CardData = Map(GetCurrentIndicator());
+
+        Buttons = new List<ButtonModel>()
+        {
+            new ButtonModel(){Content = "Подтвердить", CLickButton = EventCallback.Factory.Create<int>(this, AcceptEvent)},
+            new ButtonModel(){Content = "Удалить", CLickButton = EventCallback.Factory.Create<int>(this, DeleteEvent)}
+        };
+
+        Headers = new List<string>() { "Событие", "Тип", "Завершенность" };
+
+        Data = Map(GetDays());
+
+        ActualizationOptions.Add("Показания ареометра", UpdatingMethodEnum.AreometerValue);
+        ActualizationOptions.Add("Ввод показателей", UpdatingMethodEnum.AllIndicators);
+
+        AddEventOptions.Add("Шаптализация", NewEventTypeEnum.Shaptalization);
+        AddEventOptions.Add("Крепление", NewEventTypeEnum.Alcoholization);
+        AddEventOptions.Add("Купажирование", NewEventTypeEnum.Blending);
+    }
+
+    private List<Row> Map(List<EventTotableInCurrentday> rows)
+    {
+        var result = new List<Row>(rows.Count);
+        for (int i = 0; i < rows.Count; i++)
+        {
+            result.Add(new Row() { Id = i, Cells = new List<string>() { rows[i].EventName, rows[i].Type, rows[i].IsReady } });
+        }
+        return result;
+    }
+
+    private List<EventTotableInCurrentday> GetDays()
+    {
+        return new List<EventTotableInCurrentday>()
+        {
+            new EventTotableInCurrentday(){EventName = "Шаптализация", IsReady = "Завершено", Type="Системное"},
+            new EventTotableInCurrentday(){EventName = "Шаптализация", IsReady = "Не завершено", Type="Системное"},
+            new EventTotableInCurrentday(){EventName = "Купажирование", IsReady = "Не Завершено", Type="Пользовательское"},
+            new EventTotableInCurrentday(){EventName = "Крепление", IsReady = "Завершено", Type="Пользовательское"},
+        };
+    }
+
+    /// <summary>
+    /// Обработчик события подтверждения события
+    /// </summary>
+    /// <param name="id"></param>
+    private void AcceptEvent(int id)
+    {
+        var viewDict = new Dictionary<string, string>()
+        {
+            {"Поле: ", $"{id}" },
+            {"Кнопка: ", $"Подтвердить" }
+        };
+        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
+        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+    }
+
+    /// <summary>
+    /// Обработчик события подтверждения события
+    /// </summary>
+    /// <param name="id"></param>
+    private void DeleteEvent(int id)
+    {
+        var viewDict = new Dictionary<string, string>()
+        {
+            {"Поле: ", $"{id}" },
+            {"Кнопка: ", $"Удалить" }
+        };
+        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
+        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+    }
+
+    /// <summary>
+    /// Мапинг в значения для карточек
+    /// </summary>
+    /// <param name="currentIndicator"></param>
+    /// <returns></returns>
+    private Dictionary<string, string> Map(CurrentDayIndicator currentIndicator)
+    {
+        var indicator = GetCurrentIndicator();
+        return new Dictionary<string, string>()
+        {
+            {"Текущая дата", $"{indicator.CurrentDateTime.ToString("dd.mm.yyyy")}"},
+            {"Содержание спирта", $"{indicator.EthanolValue.ToString()}%"},
+            {"Содержание сахара", $"{indicator.SuagrValue.ToString()} Г/Литр"},
+            {"Объем", $"{indicator.Wort.ToString()} Литров"},
+        };
+    }
+
+    /// <summary>
+    /// Получение индикатора текущего дня
+    /// </summary>
+    /// <returns></returns>
+    private CurrentDayIndicator GetCurrentIndicator()
+    {
+        return new CurrentDayIndicator()
+            {
+                CurrentDateTime = DateTime.Now,
+                EthanolValue = 13.5f,
+                SuagrValue = 45.3f,
+                Wort = 27
+            };
+    }
+
+    /// <summary>
+    /// Обработчик выбора способа актуализации события
+    /// </summary>
+    /// <param name="value"></param>
+    private void SelectUpdatingMethod(UpdatingMethodEnum value)
+    {
+        switch (value)
+        {
+            case UpdatingMethodEnum.AllIndicators:
+                UpdateIndicatorsForm =@<UpdateIndicatorsByAllParams></UpdateIndicatorsByAllParams>;
+                break;
+            case UpdatingMethodEnum.AreometerValue:
+                UpdateIndicatorsForm =@<UpdateIndicatorsByAreometer></UpdateIndicatorsByAreometer>;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Обработчик выбора типа добавляемого события
+    /// </summary>
+    /// <param name="value"></param>
+    private void SelectAddNewEventType(NewEventTypeEnum value)
+    {
+        var viewDict = new Dictionary<string, string>()
+        {
+            {"Поле: ", $"{value.ToString()}" },
+            {"Кнопка: ", $"Выбрать тип добавляемого события" }
+        };
+        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
+        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+    }
+}

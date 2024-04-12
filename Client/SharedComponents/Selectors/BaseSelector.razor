@@ -1,0 +1,45 @@
+﻿@using Client.Pages.ProjectsPage.Models
+@typeparam TEnumType
+
+
+<div class="selectdiv">
+    <InputSelect ValueChanged="(async (TEnumType e)=>await SelectOption(e))" ValueExpression="(()=>ActiveOption)">
+        @foreach (var item in Options)
+        {
+            <option value="@item.Value">@item.Key</option>
+        }
+    </InputSelect>
+</div>
+
+@code {
+    /// <summary>
+    /// Варианты селектора
+    /// </summary>
+    [Parameter]
+    [EditorRequired]
+    public Dictionary<string, TEnumType> Options { get; set; } = new();
+
+    /// <summary>
+    /// Обработчик события выбора селктора
+    /// </summary>
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<TEnumType> SelectOptionEvent { get; set; }
+
+    /// <summary>
+    /// Активный элемент селекта
+    /// </summary>
+    private TEnumType ActiveOption;
+
+    /// <summary>
+    /// Обработчик выбора селектора
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    private async Task SelectOption(TEnumType type)
+    {
+        ActiveOption = type;
+
+        await SelectOptionEvent.InvokeAsync(type);
+    }
+}

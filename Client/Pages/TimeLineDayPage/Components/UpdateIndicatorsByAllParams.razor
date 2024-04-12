@@ -1,0 +1,39 @@
+﻿@rendermode RenderMode.InteractiveWebAssembly
+@using Client.Pages.TimeLineDayPage.Request
+@using Client.SharedComponents.Forms
+@using Client.SharedComponents.Modal
+
+<DefaultForm1 Header="Актуализация показателей" Model="Model" TModelType="UpdateIndicatorsByAllParam" SubmitButton="Submit">
+    <DataAnnotationsValidator />
+    <p><InputNumber @bind-Value="Model.AlcoholPercentage" placeholder="Процент алкоголя"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.AlcoholPercentage)" />
+    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.SugarValue)" />
+    <p><InputNumber @bind-Value="Model.Wort" placeholder="Объем"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.Wort)" />
+    <p><input type="submit" value="Актуализировать"></p>
+</DefaultForm1>
+
+@code {
+    /// <summary>
+    /// Моделька
+    /// </summary>
+    public UpdateIndicatorsByAllParam Model { get; set; } = new();
+
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    public void Submit()
+    {
+        var viewDict = new Dictionary<string, string>()
+        {
+            {"Текущее содержание сахара", Model.SugarValue==null?string.Empty:((float)Model.SugarValue).ToString()},
+            {"Текущее содержание спирта", Model.AlcoholPercentage==null?string.Empty:((float)Model.AlcoholPercentage).ToString()},
+            {"Объем", Model.Wort==null?string.Empty:((float)Model.Wort).ToString()}
+        };
+        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
+        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+    }
+}

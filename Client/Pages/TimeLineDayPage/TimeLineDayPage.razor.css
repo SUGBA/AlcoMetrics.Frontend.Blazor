@@ -1,0 +1,72 @@
+﻿.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.contentRowsContainer {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.contentContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    flex-wrap:wrap;
+}
+
+.leftContentContainer {
+    align-self: flex-start;
+}
+
+.rightContentContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.selecterContainer {
+    margin-top:10px;
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+    justify-content: space-between;
+}
+
+.leftselecterContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.rightselecterContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+::deep .selectStartDataInputType {
+    width: 100%;
+}
+
+@media(max-width: 767px) {
+    .contentRowsContainer {
+        flex-direction: column;
+    }
+
+    ::deep .selectStartDataInputType {
+        width: 70%;
+    }
+
+    .contentContainer {
+        flex-direction: column;
+    }
+
+    ::deep .cardContainer {
+        width:100%;
+        flex-direction: row;
+        flex-wrap:wr
+    }
+}

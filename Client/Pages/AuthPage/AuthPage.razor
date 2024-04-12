@@ -1,0 +1,47 @@
+﻿@page "/auth"
+@layout LoginLayout
+@rendermode RenderMode.InteractiveWebAssembly
+@using Client.Auth.Abstract
+@using Client.Pages.AuthPage.Components
+@using Client.Pages.AuthPage.Models
+@using Client.SharedComponents.Modal
+
+<div class="contentRowsContainer">
+    <div class="authContainer">
+        <a @onclick="(()=>SetAuthPageMode(LoginOrRegisterEnum.Register))"><div class="signup">Регистрация</div></a>
+        <a @onclick="(()=>SetAuthPageMode(LoginOrRegisterEnum.Login))"><div class="login">Авторизация</div></a>
+        @AuthPageMode
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter] 
+    public IModalService Modal { get; set; } = default!;
+
+    /// <summary>
+    /// Вход/Регистрация
+    /// </summary>
+    public RenderFragment AuthPageMode { get; set; } = @<LogInComponent></LogInComponent>;
+
+    /// <summary>
+    /// Обработчик переключателя Вход/Регистрация
+    /// </summary>
+    /// <param name="type"></param>
+    private void SetAuthPageMode(LoginOrRegisterEnum type)
+    {
+        switch (type)
+        {
+            case LoginOrRegisterEnum.Login:
+                AuthPageMode = @<LogInComponent></LogInComponent>;
+                break;
+            case LoginOrRegisterEnum.Register:
+                AuthPageMode = @<SignUpComponent></SignUpComponent>;
+                break;
+            default:
+                break;
+        }
+    }
+}

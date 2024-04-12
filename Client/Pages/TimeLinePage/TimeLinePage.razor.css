@@ -1,0 +1,30 @@
+﻿.contentRowsContainer {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: aqua;
+}
+
+.daysContainer {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    min-height: 40vh;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+@media(max-width: 767px) {
+    .daysContainer {
+        flex-direction: column;
+    }
+
+    .contentRowsContainer {
+        flex-direction: column;
+    }
+}

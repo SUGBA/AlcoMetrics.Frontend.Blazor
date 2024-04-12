@@ -1,0 +1,36 @@
+﻿@using Client.Auth.Abstract
+@using Client.Pages.AuthPage.Models
+@using Client.SharedComponents.Forms
+@using Client.SharedComponents.Modal
+@inject IAuthorizeAPI authAPI
+@inject NavigationManager NavManager
+@rendermode RenderMode.InteractiveWebAssembly
+
+<DefaultForm1 Header="Вход" Model="Model" TModelType="LoginModel" SubmitButton="Submit">
+    <DataAnnotationsValidator />
+    <p><InputText @bind-Value="Model.Login" placeholder="Логин"></InputText></p>
+    <ValidationMessage For="(()=>Model.Login)" />
+    <p><InputText type="password" @bind-Value="Model.Password" placeholder="Пароль"></InputText></p>
+    <ValidationMessage For="(()=>Model.Password)" />
+    <p><input type="submit" value="Войти"></p>
+</DefaultForm1>
+
+@code {
+    private LoginModel Model = new();
+
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    /// <summary>
+    /// Обработчик входа
+    /// </summary>
+    private async Task Submit()
+    {
+        if (await authAPI.Login(Model.Login!, Model.Password!))
+            NavManager.NavigateTo("/");
+        else
+            Model = new();
+    }
+}

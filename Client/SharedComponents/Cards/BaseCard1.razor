@@ -1,0 +1,21 @@
+﻿<div class="cardContainer">
+    @foreach (var item in Content)
+    {
+        <div class="row">
+            <div class="card">
+                <h4>@item.Key</h4>
+                <h2>@item.Value</h2>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Список значений формата ключ-значений
+    /// Ключ = заголовок карточки
+    /// Значение = значение карточки
+    /// </summary>
+    [EditorRequired, Parameter]
+    public Dictionary<string, string> Content { get; set; } = new();
+}

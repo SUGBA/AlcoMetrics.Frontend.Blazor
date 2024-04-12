@@ -1,0 +1,49 @@
+﻿@using Client.Pages.ProjectsPage.Request
+@using Client.SharedComponents.Forms
+@using Client.SharedComponents.Modal
+@rendermode RenderMode.InteractiveWebAssembly
+
+<DefaultForm1 Header="Первичные данные" Model="Model" TModelType="CreateProjectModelByAreometer" SubmitButton="OnSubmit">
+    <DataAnnotationsValidator />
+    <p><InputText @bind-Value="Model.ProjectName" placeholder="Название проекта"></InputText></p>
+    <ValidationMessage For="(()=>Model.ProjectName)" />
+    <p><InputNumber @bind-Value="Model.Wort" placeholder="Объем сусла"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.Wort)" />
+    <p><InputNumber @bind-Value="Model.AreometerValue" placeholder="Показания ареометра"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.AreometerValue)" />
+    <p>Желаемые показатели</p>
+    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Процентное содержание спирта"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
+    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
+    <p><input type="submit" value="Создать"></p>
+</DefaultForm1>
+
+@code {
+    /// <summary>
+    /// Модель для создания по ареометру
+    /// </summary>
+    public CreateProjectModelByAreometer Model { get; set; } = new();
+
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    /// <summary>
+    /// Обработчик кнопки создать
+    /// </summary>
+    private void OnSubmit()
+    {
+        var viewDict = new Dictionary<string, string>()
+        {
+            {"Показания ареометра", Model.AreometerValue==null?string.Empty:((float)Model.AreometerValue).ToString()},
+            {"Имя проекта", Model.ProjectName??string.Empty},
+            {"Желаемый сахар", Model.DesiredSugarValue==null?string.Empty:((float)Model.DesiredSugarValue).ToString()},
+            {"Желаемый спирт", Model.DesiredAlcoholValue==null?string.Empty:((float)Model.DesiredAlcoholValue).ToString()},
+            {"Объем", Model.Wort==null?string.Empty:((float)Model.Wort).ToString()}
+        };
+        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
+        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+    }
+}

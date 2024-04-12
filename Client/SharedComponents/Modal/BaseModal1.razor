@@ -1,0 +1,14 @@
+﻿@typeparam T
+
+@foreach (var item in Values)
+{
+    <p>@item.Key: @item.Value</p>
+}
+
+@code {
+    /// <summary>
+    /// Значения в формате: Ключ-значение
+    /// </summary>
+    [Parameter]
+    public Dictionary<string, T> Values { get; set; } = new();
+}

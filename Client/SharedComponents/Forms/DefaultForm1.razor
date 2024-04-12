@@ -1,0 +1,46 @@
+﻿@typeparam TModelType
+
+<div class="baseForm">
+    <div class="formHeaderItem"></div>
+
+    <h2 class="formHeader">@Header</h2>
+
+    <EditForm Model="Model" class="formContainer" OnValidSubmit="(async () => await Submit())">
+        @ChildContent
+    </EditForm>
+</div>
+
+@code {
+    /// <summary>
+    /// Содержимое формы
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Обработчик нажатия кнопки принять
+    /// </summary>
+    [Parameter]
+    public EventCallback<TModelType> SubmitButton { get; set; }
+
+    /// <summary>
+    /// Заголовок формы
+    /// </summary>
+    [Parameter]
+    public string Header { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Моделька
+    /// </summary>
+    [EditorRequired, Parameter]
+    public TModelType Model { get; set; }
+
+    /// <summary>
+    /// Перенаправляем на родительский обработчик
+    /// </summary>
+    /// <returns></returns>
+    private async Task Submit()
+    {
+        await SubmitButton.InvokeAsync(Model);
+    }
+}

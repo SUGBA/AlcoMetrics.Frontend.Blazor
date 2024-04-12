@@ -1,0 +1,54 @@
+﻿.baseForm {
+    width: 100%;
+    margin: 16px auto;
+    font-size: 16px;
+}
+
+.formHeaderItem {
+    width: 0;
+    margin-right: auto;
+    margin-left: auto;
+    border: 12px solid transparent;
+    border-bottom-color: #ff7979;
+}
+
+.formHeader {
+    background: #ff7979;
+    padding: 20px;
+    font-size: 1.4em;
+    font-weight: normal;
+    text-align: center;
+    color: #fff;
+}
+
+.formContainer {
+    background: #ebebeb;
+    padding: 12px;
+}
+
+    .formContainer ::deep p {
+        text-align: center;
+    }
+
+.baseForm ::deep p {
+    padding: 12px;
+}
+
+.baseForm ::deep input {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    border-width: 1px;
+    border-style: solid;
+    padding: 16px;
+    outline: 0;
+    font-family: inherit;
+    font-size: 0.95em;
+}
+
+    .baseForm ::deep input[type="submit"] {
+        background: #ff7979;
+        border-color: transparent;
+        color: #fff;
+        cursor: pointer;
+    }

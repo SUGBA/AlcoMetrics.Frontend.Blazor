@@ -1,0 +1,72 @@
+﻿@using Client.SharedComponents.Tables.Models
+@inherits ComponentBase
+@rendermode RenderMode.InteractiveWebAssembly
+
+@* Компонент таблицы с двумя кнопками *@
+<table class="listProjectTable">
+    <caption>
+        <div class="searchDiv">
+            <div class="searchForm">
+                <input @bind-value="@SearchLine" type="text" placeholder="Искать здесь...">
+                <button @onclick="Sort" type="submit"></button>
+            </div>
+        </div>
+    </caption>
+    <tr>
+        @foreach (var item in Headers)
+        {
+            <th>@item</th>
+        }
+        <th colspan="@Buttons.Count">Редактирование</th>
+    </tr>
+    @for (var i = 0; i < Data.Count; i++)
+    {
+        <tr>
+            @{
+                var copyI = i;
+            }
+            @for (int j = 0; j < Data[i].Cells.Count; j++)
+            {
+                <td>@Data[i].Cells[j]</td>
+            }
+            @foreach (var item in Buttons)
+            {
+                <td><a class="noselect" @onclick="(async ()=>await item.CLickButton.InvokeAsync(Data[copyI].Id))">@item.Content</a></td>
+            }
+        </tr>
+    }
+</table>
+
+
+@code {
+    /// <summary>
+    /// Заголовки
+    /// </summary>
+    [EditorRequired, Parameter]
+    public List<string> Headers { get; set; } = new();
+
+    /// <summary>
+    /// Строки
+    /// </summary>
+    [Parameter]
+    public List<Row> Data { get; set; } = new();
+
+    /// <summary>
+    /// Кнопки
+    /// </summary>
+    [EditorRequired, Parameter]
+    public List<ButtonModel> Buttons { get; set; } = new();
+
+    /// <summary>
+    /// Строка поиска
+    /// </summary>
+    public string SearchLine { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Обработчик события поиска строки
+    /// </summary>
+    private void Sort()
+    {
+        Data = Data.OrderByDescending(x => x.Cells[0].ToLower().StartsWith(SearchLine.ToLower())).ToList();
+    }
+}
