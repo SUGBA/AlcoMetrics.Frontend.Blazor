@@ -1,9 +1,12 @@
-﻿@using Client.Auth.Abstract
+﻿@using Client.Auth
+@using Client.Auth.Abstract
+@using Client.Auth.PasswordAuthentification.Abstract
 @using Client.Pages.AuthPage.Models
 @using Client.SharedComponents.Forms
 @using Client.SharedComponents.Modal
 @inject IAuthorizeAPI authAPI
-@inject NavigationManager NavManager
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider authenticationStateProvider
 @rendermode RenderMode.InteractiveWebAssembly
 
 <DefaultForm1 Header="Вход" Model="Model" TModelType="LoginModel" SubmitButton="Submit">
@@ -28,8 +31,15 @@
     /// </summary>
     private async Task Submit()
     {
-        if (await authAPI.Login(Model.Login!, Model.Password!))
-            NavManager.NavigateTo("/");
+        if (string.IsNullOrEmpty(Model.Login) || string.IsNullOrEmpty(Model.Password))
+            return;
+
+        var token = await authAPI.Login(Model.Login, Model.Password);
+        if (!string.IsNullOrEmpty(token))
+        {
+            await ((IdentityAuthenticationStateProvider)authenticationStateProvider).AuthorizeUser(token);
+            Navigation.NavigateTo("ProjectPage");
+        }
         else
             Model = new();
     }

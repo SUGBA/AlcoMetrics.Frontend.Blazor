@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Blazored.LocalStorage;
+using Client.Auth.Abstract;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Client.Auth
@@ -11,9 +12,18 @@ namespace Client.Auth
     {
         private readonly ILocalStorageService _localStorageService;
 
-        public IdentityAuthenticationStateProvider(ILocalStorageService localStorageService)
+        private readonly IConfiguration _configuration;
+
+        private readonly IClaimsPrincipalConverterService _tokenProviderService;
+
+        public IdentityAuthenticationStateProvider(
+            ILocalStorageService localStorageService,
+            IConfiguration configuration,
+            IClaimsPrincipalConverterService tokenProviderService)
         {
             _localStorageService = localStorageService;
+            _configuration = configuration;
+            _tokenProviderService = tokenProviderService;
         }
 
         /// <summary>
@@ -23,14 +33,14 @@ namespace Client.Auth
         /// <exception cref="NotImplementedException"></exception>
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            ///Здесь должен быть запрос на получение токена
-
-            var token = await _localStorageService.GetItemAsStringAsync("token");
+            var tokenNameClaimName = _configuration["AuthSetting:CookiesTokenVariable"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            var token = await _localStorageService.GetItemAsStringAsync(tokenNameClaimName);
 
             if (!string.IsNullOrEmpty(token))
             {
-                var authUser = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>() { new Claim(type: ClaimTypes.Name, value: "user1") }, "jwt"));
-                return new AuthenticationState(authUser);
+                var authUser = _tokenProviderService.GetClaimsPrincipal(token);
+                if (authUser != null)
+                    return new AuthenticationState(authUser);
             }
 
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -39,14 +49,12 @@ namespace Client.Auth
         /// <summary>
         /// Сделать пользователя аутентифицированным
         /// </summary>
-        public void AuthorizeUser(string token)
+        public async Task AuthorizeUser(string token)
         {
-            ///Нужно распрасить token
-
-            var authUser = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>()
-            {
-                new Claim(type: ClaimTypes.Name, value: "user1")
-            }, "jwt"));
+            var authUser = _tokenProviderService.GetClaimsPrincipal(token);
+            if (authUser == null) return;
+            var tokenNameClaimName = _configuration["AuthSetting:CookiesTokenVariable"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            await _localStorageService.SetItemAsStringAsync(tokenNameClaimName, token);
 
             var authState = Task.FromResult(new AuthenticationState(authUser));
             NotifyAuthenticationStateChanged(authState);
