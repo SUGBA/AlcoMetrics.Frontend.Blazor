@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Blazored.LocalStorage;
 using Client.Extensions;
+using Microsoft.Extensions.Configuration;
 
 namespace Client.Auth.Share
 {
@@ -14,9 +15,9 @@ namespace Client.Auth.Share
 
         private readonly ILocalStorageService _localStorageService;
 
-        readonly NavigationManager _navigationManager;
+        private readonly NavigationManager _navigationManager;
 
-        AuthHttpClientHandler(IConfiguration configuration,
+        public AuthHttpClientHandler(IConfiguration configuration,
             ILocalStorageService localStorageService,
             NavigationManager navigationManager)
         {

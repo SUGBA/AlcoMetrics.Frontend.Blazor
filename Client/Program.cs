@@ -1,3 +1,4 @@
+using System.Net.Http;
 using Blazored.LocalStorage;
 using Blazored.Modal;
 using Client.Auth.Abstract;
@@ -17,18 +18,19 @@ namespace Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            builder.Services.AddTransient<ITokenProviderService, TokenProviderService>();
-            builder.Services.AddTransient<IClaimsPrincipalConverterService, PasswordClaimsPrincipalConverterService>();
-
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped<AuthHttpClientHandler>();
-            builder.Services.AddHttpClient(builder.Configuration.TryGetValue("ApiSettings:HttpClientName", "Имя HttpClient не указано в конфигурации"),
-                client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
-                .AddHttpMessageHandler<AuthHttpClientHandler>();
+            //builder.Services.AddTransient<AuthHttpClientHandler>();
+            //builder.Services.AddHttpClient(builder.Configuration.TryGetValue("ApiSettings:HttpClientName", "Имя HttpClient не указано в конфигурации"),
+            //    client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+            //    .AddHttpMessageHandler<AuthHttpClientHandler>();
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7208/") });
+            //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7208/") });
+
+
+            builder.Services.AddTransient<ITokenProviderService, TokenProviderService>();
+            builder.Services.AddTransient<IClaimsPrincipalConverterService, PasswordClaimsPrincipalConverterService>();
             builder.Services.AddScoped<IAuthorizeAPI, PasswordAuthorizeAPI>();
 
             builder.Services.AddOptions();
@@ -36,6 +38,14 @@ namespace Client
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityAuthenticationStateProvider>();
 
             builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services.AddTransient<AuthHttpClientHandler>();
+            builder.Services.AddHttpClient(builder.Configuration.TryGetValue("ApiSettings:HttpClientName", "Имя HttpClient не указано в конфигурации"),
+                client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+                .AddHttpMessageHandler<AuthHttpClientHandler>();
+
+            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+                .CreateClient(builder.Configuration.TryGetValue("ApiSettings:HttpClientName", "Имя HttpClient не указано в конфигурации")));
 
             builder.Services.AddBlazoredModal();
 
