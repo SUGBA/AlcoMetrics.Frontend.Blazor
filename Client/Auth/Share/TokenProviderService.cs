@@ -1,8 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Client.Auth.Abstract;
 
-namespace Client.Auth
+namespace Client.Auth.Share
 {
     /// <summary>
     /// Сервис для работы с JWT токенами

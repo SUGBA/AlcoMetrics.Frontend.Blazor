@@ -11,21 +11,24 @@ namespace Client.Auth.PasswordAuthentification
     {
         private readonly IConfiguration _configuration;
 
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public PasswordAuthorizeAPI(IConfiguration configuration, HttpClient httpClient)
+        public PasswordAuthorizeAPI(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
-            _httpClient = httpClient;
+            _clientFactory = httpClientFactory;
         }
 
         public async Task<string?> Login(string login, string password)
         {
             var domenPath = _configuration.TryGetValue("AuthSetting:AuthenticationServicePath", "Конфигурация не содержит доменный путь до агрегирующего сервиса");
             var loginPath = _configuration.TryGetValue("AuthSetting:LoginPath", "Конфигурация не содержит путь до точки с аутентификацией");
+            var httpClientName = _configuration.TryGetValue("ApiSettings:HttpClientName", "Конфигурация не содержит имя HttpClient");
             var path = $"{domenPath}/{loginPath}";
 
-            var response = await _httpClient.PostAsJsonAsync(path, new { Login = login, Password = password });
+            var httpclient = _clientFactory.CreateClient(httpClientName);
+
+            var response = await httpclient.PostAsJsonAsync(path, new { Login = login, Password = password });
 
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadAsStringAsync();

@@ -3,7 +3,7 @@ using Blazored.LocalStorage;
 using Client.Auth.Abstract;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace Client.Auth
+namespace Client.Auth.Share
 {
     /// <summary>
     /// Провайдер аутентификации
@@ -33,8 +33,8 @@ namespace Client.Auth
         /// <exception cref="NotImplementedException"></exception>
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var tokenNameClaimName = _configuration["AuthSetting:CookiesTokenVariable"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
-            var token = await _localStorageService.GetItemAsStringAsync(tokenNameClaimName);
+            var tokenClaimName = _configuration["AuthSetting:TokenVariableName"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            var token = await _localStorageService.GetItemAsStringAsync(tokenClaimName);
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -53,11 +53,13 @@ namespace Client.Auth
         {
             var authUser = _tokenProviderService.GetClaimsPrincipal(token);
             if (authUser == null) return;
-            var tokenNameClaimName = _configuration["AuthSetting:CookiesTokenVariable"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
-            await _localStorageService.SetItemAsStringAsync(tokenNameClaimName, token);
+            var tokenClaimName = _configuration["AuthSetting:TokenVariableName"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            await _localStorageService.SetItemAsStringAsync(tokenClaimName, token);
 
             var authState = Task.FromResult(new AuthenticationState(authUser));
             NotifyAuthenticationStateChanged(authState);
         }
+
+
     }
 }
