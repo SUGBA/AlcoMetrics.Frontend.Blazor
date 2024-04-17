@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Auth\PasswordAuthentification\Models\" />
     <Folder Include="Pages\ProjectsPage\Response\" />
     <Folder Include="Pages\ProjectsPage\Request\" />
     <Folder Include="Pages\TimeLineDayPage\Request\" />

@@ -39,7 +39,7 @@ namespace Client.Auth.PasswordAuthentification
             throw new NotImplementedException();
         }
 
-        public Task<bool> Register(string login, string password)
+        public Task<IEnumerable<string>> Register(string login, string password)
         {
             ///Запрос на регистрацию и получение токена
             throw new NotImplementedException();

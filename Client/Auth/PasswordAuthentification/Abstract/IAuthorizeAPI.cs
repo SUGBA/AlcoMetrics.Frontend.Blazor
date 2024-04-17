@@ -17,7 +17,7 @@
         /// <param name="login"> Логин пользователя </param>
         /// <param name="password"> Пароль пользователя </param>
         /// <returns> True - Успех/False - провал </returns>
-        Task<bool> Register(string login, string password);
+        Task<IEnumerable<string>> Register(string login, string password);
 
         /// <summary>
         /// Войти и получить токен
