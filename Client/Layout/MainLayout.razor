@@ -1,13 +1,16 @@
-﻿@rendermode RenderMode.InteractiveWebAssembly
+﻿@using Client.Auth.Share
+@rendermode RenderMode.InteractiveWebAssembly
 @inject NavigationManager NavManager;
+@inject AuthenticationStateProvider authenticationStateProvider
 @inherits LayoutComponentBase
 
-<AuthorizeView>
+<AuthorizeView Roles="WineMaker">
     <body>
         <div class="navigationBar">
             <a href="#" class="underline-one">Калькулятор</a>
             <a href="#" class="underline-one">Проекты</a>
             <a href="#" class="underline-one">Личный кабинет</a>
+            <a href="#" class="underline-one" @onclick="(async ()=>await Logout())">Выйти</a>
         </div>
 
         @Body
@@ -53,7 +56,16 @@
     protected override async Task OnParametersSetAsync()
     {
         var state = await AuthState;
-        if (!state.User.Identity!.IsAuthenticated)
-            NavManager.NavigateTo("auth");
+        if (state.User.Identity == null || !state.User.Identity!.IsAuthenticated)
+            NavManager.NavigateTo("/auth");
+    }
+
+    /// <summary>
+    /// Обработчик события выхода из системы
+    /// </summary>
+    private async Task Logout()
+    {
+        await ((IdentityAuthenticationStateProvider)authenticationStateProvider).UnAuthorizeUser();
+        NavManager.NavigateTo("/auth");
     }
 }

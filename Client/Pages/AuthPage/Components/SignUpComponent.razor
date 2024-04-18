@@ -44,7 +44,7 @@
 
         ListErrors = (await authAPI.Register(Model.Login, Model.Password)).ToList();
         if (ListErrors.Count() == 0)        //Если ошибок нету перенаправляем на страницу аутентификации
-            navManager.NavigateTo("/auth");
+            navManager.NavigateTo("/auth", true);
         else
             Model = new();
     }

@@ -60,6 +60,13 @@ namespace Client.Auth.Share
             NotifyAuthenticationStateChanged(authState);
         }
 
+        public async Task UnAuthorizeUser()
+        {
+            var tokenClaimName = _configuration["AuthSetting:TokenVariableName"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            await _localStorageService.RemoveItemAsync(tokenClaimName);
 
+            var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));
+            NotifyAuthenticationStateChanged(authState);
+        }
     }
 }

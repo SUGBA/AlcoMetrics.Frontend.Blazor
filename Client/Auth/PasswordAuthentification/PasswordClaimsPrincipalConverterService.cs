@@ -47,11 +47,11 @@ namespace Client.Auth.PasswordAuthentification
             var userName = _tokenProviderService.GetValue(token, userNameClaimName);
             var userRoles = _tokenProviderService.GetValues(token, userRolesClaimName) ?? new List<string>();
 
-            if (string.IsNullOrEmpty(userName)) return null;
+            if (string.IsNullOrEmpty(userName) || userRoles.Count == 0) return null;
 
             var result = new JwtSecurityTokenHandler().ReadJwtToken(token).Claims.ToList();
             result.Add(new Claim(userNameClaimName, userName));
-            userRoles.ForEach(role => result.Add(new Claim(userRolesClaimName, role)));
+            userRoles.ForEach(role => result.Add(new Claim(ClaimTypes.Role, role)));
 
             return result;
         }
