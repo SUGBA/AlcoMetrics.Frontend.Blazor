@@ -1,6 +1,9 @@
-﻿@using Client.Pages.AuthPage.Models
+﻿@using Client.Auth.PasswordAuthentification.Abstract
+@using Client.Pages.AuthPage.Models
 @using Client.SharedComponents.Forms
 @using Client.SharedComponents.Modal
+@inject NavigationManager navManager
+@inject IAuthorizeAPI authAPI
 @rendermode RenderMode.InteractiveWebAssembly
 
 <DefaultForm1 Header="Регистрация" Model="Model" TModelType="RegisterModel" SubmitButton="Submit">
@@ -14,8 +17,17 @@
     <p><input type="submit" value="Войти"></p>
 </DefaultForm1>
 
+<ul>
+    @foreach (var error in ListErrors)
+    {
+        <li>@error</li>
+    }
+</ul>
+
 @code {
     private RegisterModel Model = new();
+
+    private List<string> ListErrors = new();
 
     /// <summary>
     /// Модалка
@@ -25,16 +37,15 @@
     /// <summary>
     /// Обработчик регистрации
     /// </summary>
-    private void Submit()
+    private async Task Submit()
     {
-        var viewDict = new Dictionary<string, string>()
-        {
-            {"Кнопка: ", $"Вход" },
-            {"Логин: ", $"{Model.Login}" },
-            {"Пароль: ", $"{Model.Password}" },
-            {"Пароль x2: ", $"{Model.RepeatPassword}" },
-        };
-        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
-        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+        if (string.IsNullOrEmpty(Model.Login) || string.IsNullOrEmpty(Model.Password))
+            return;
+
+        ListErrors = (await authAPI.Register(Model.Login, Model.Password)).ToList();
+        if (ListErrors.Count() == 0)        //Если ошибок нету перенаправляем на страницу аутентификации
+            navManager.NavigateTo("/auth");
+        else
+            Model = new();
     }
 }

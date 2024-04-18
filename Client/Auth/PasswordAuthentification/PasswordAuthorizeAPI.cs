@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Data.SqlTypes;
+using System.Net.Http.Json;
 using Client.Auth.PasswordAuthentification.Abstract;
 using Client.Extensions;
 
@@ -9,6 +10,8 @@ namespace Client.Auth.PasswordAuthentification
     /// </summary>
     public class PasswordAuthorizeAPI : IAuthorizeAPI
     {
+        private static string REGISTER_API_ERROR = "Ошибка при регистрации. Возможно сервис недоступен. Попробуйте позже";
+
         private readonly IConfiguration _configuration;
 
         private readonly HttpClient _httpClient;
@@ -23,7 +26,6 @@ namespace Client.Auth.PasswordAuthentification
         {
             var domenPath = _configuration.TryGetValue("AuthSetting:AuthenticationServicePath", "Конфигурация не содержит доменный путь до агрегирующего сервиса");
             var loginPath = _configuration.TryGetValue("AuthSetting:LoginPath", "Конфигурация не содержит путь до точки с аутентификацией");
-            var httpClientName = _configuration.TryGetValue("ApiSettings:HttpClientName", "Конфигурация не содержит имя HttpClient");
             var path = $"{domenPath}/{loginPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, new { Login = login, Password = password });
@@ -40,11 +42,28 @@ namespace Client.Auth.PasswordAuthentification
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<string>> Register(string login, string password)
+        /// <summary>
+        /// Регистрация пользователя
+        /// На выход приходит массив с ошибками
+        /// Если ошибок нету, но код http не положительный, добалвяем ошибку
+        /// </summary>
+        /// <param name="login"> Логин </param>
+        /// <param name="password"> Пароль </param>
+        /// <returns></returns>
+        public async Task<IEnumerable<string>> Register(string login, string password)
         {
-            ///Запрос на регистрацию и получение токена
-            throw new NotImplementedException();
-        }
+            var domenPath = _configuration.TryGetValue("AuthSetting:AuthenticationServicePath", "Конфигурация не содержит доменный путь до агрегирующего сервиса");
+            var registerPath = _configuration.TryGetValue("AuthSetting:RegisterPath", "Конфигурация не содержит путь до точки с регистрацией");
+            var path = $"{domenPath}/{registerPath}";
 
+            var response = await _httpClient.PostAsJsonAsync(path, new { Login = login, Password = password });
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.IsSuccessStatusCode)    //В этих случаях нам точно отправили в теле ответ (пускай и пустой массив)
+                return await response.Content.ReadFromJsonAsync<IEnumerable<string>>() ?? Enumerable.Empty<string>();
+
+            if (!response.IsSuccessStatusCode)
+                return new List<string>() { REGISTER_API_ERROR };
+
+            return Enumerable.Empty<string>();
+        }
     }
 }
