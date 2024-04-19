@@ -1,5 +1,4 @@
-﻿using System.Data.SqlTypes;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Client.Auth.PasswordAuthentification.Abstract;
 using Client.Extensions;
 
@@ -34,12 +33,6 @@ namespace Client.Auth.PasswordAuthentification
                 return await response.Content.ReadAsStringAsync();
             else
                 return null;
-        }
-
-        public Task Logout()
-        {
-            ///Запрос на выход
-            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -6,12 +6,6 @@
     public interface IAuthorizeAPI
     {
         /// <summary>
-        /// Выйти из системы
-        /// </summary>
-        /// <returns></returns>
-        Task Logout();
-
-        /// <summary>
         /// Регистрация
         /// </summary>
         /// <param name="login"> Логин пользователя </param>
