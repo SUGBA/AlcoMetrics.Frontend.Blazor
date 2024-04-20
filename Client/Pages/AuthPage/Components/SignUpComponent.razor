@@ -17,17 +17,8 @@
     <p><input type="submit" value="Войти"></p>
 </DefaultForm1>
 
-<ul>
-    @foreach (var error in ListErrors)
-    {
-        <li>@error</li>
-    }
-</ul>
-
 @code {
     private RegisterModel Model = new();
-
-    private List<string> ListErrors = new();
 
     /// <summary>
     /// Модалка
@@ -42,10 +33,25 @@
         if (string.IsNullOrEmpty(Model.Login) || string.IsNullOrEmpty(Model.Password))
             return;
 
-        ListErrors = (await authAPI.Register(Model.Login, Model.Password)).ToList();
-        if (ListErrors.Count() == 0)        //Если ошибок нету перенаправляем на страницу аутентификации
+        var errors = (await authAPI.Register(Model.Login, Model.Password)).ToList();
+        if (errors.Count() == 0)        //Если ошибок нету перенаправляем на страницу аутентификации
+        {
             navManager.NavigateTo("/auth", true);
+        }
         else
+        {
             Model = new();
+            ShowErrorModal(errors);
+        }
+    }
+
+    /// <summary>
+    /// Метод отображающий список ошибок в модалке
+    /// </summary>
+    /// <param name="errors"> Список ошибок </param>
+    private void ShowErrorModal(IEnumerable<string> errors)
+    {
+        var parameter = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>("Ошибка в процессе регистрации", parameter);
     }
 }

@@ -42,6 +42,20 @@
             Navigation.NavigateTo("ProjectPage");
         }
         else
+        {
             Model = new();
+            ShowErrorModal();
+        }
+    }
+
+    /// <summary>
+    /// Метод отображающий список ошибок в модалке
+    /// </summary>
+    /// <param name="errors"> Список ошибок </param>
+    private void ShowErrorModal()
+    {
+        var errors = new List<string> { "Не удалось войти в систему. Повторите попытку спустя некоторое время." };
+        var parameter = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>("Ошибка в процессе входа в систему", parameter);
     }
 }

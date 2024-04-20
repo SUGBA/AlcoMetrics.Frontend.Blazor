@@ -1,0 +1,16 @@
+﻿
+
+<ul>
+    @foreach (var error in Errors)
+    {
+        <li style="color:orangered; font-size:14px">@error</li>
+    }
+</ul>
+
+@code {
+    /// <summary>
+    /// Список отображаемых ошибок
+    /// </summary>
+    [EditorRequired, Parameter]
+    public IEnumerable<string> Errors { get; set; } = Enumerable.Empty<string>();
+}
