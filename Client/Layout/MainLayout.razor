@@ -8,9 +8,9 @@
     <body>
         <div class="navigationBar">
             <a href="#" class="underline-one">Калькулятор</a>
-            <a href="#" class="underline-one">Проекты</a>
+            <a class="underline-one" @onclick="(()=>ToProjectsPage())">Проекты</a>
             <a href="#" class="underline-one">Личный кабинет</a>
-            <a href="#" class="underline-one" @onclick="(async ()=>await Logout())">Выйти</a>
+            <a class="underline-one" @onclick="(async ()=>await Logout())">Выйти</a>
         </div>
 
         @Body
@@ -67,5 +67,10 @@
     {
         await ((IdentityAuthenticationStateProvider)authenticationStateProvider).UnAuthorizeUser();
         NavManager.NavigateTo("/auth");
+    }
+
+    private void ToProjectsPage()
+    {
+        NavManager.NavigateTo("ProjectPage");
     }
 }

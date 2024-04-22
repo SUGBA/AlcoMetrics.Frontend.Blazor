@@ -1,0 +1,39 @@
+﻿@using Client.SharedComponents.Buttons
+
+<p class="Message">@Message</p>
+<div class="buttonsDiv">
+    <BaseButton1 Content="Продолжить" ButtonEvent="AgreeEvent" />
+    <BaseButton1 Content="Отменить" ButtonEvent="NoAgreeEvent" />
+</div>
+
+
+@code {
+    /// <summary>
+    /// Отображаемое сообщение
+    /// </summary>
+    [EditorRequired, Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Отображаемый заголовок
+    /// </summary>
+    [EditorRequired, Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    protected override void OnInitialized() => BlazoredModal.SetTitle(Title);
+
+    /// <summary>
+    /// Событие при при нажатии продолжить
+    /// </summary>
+    /// <returns></returns>
+    private async Task AgreeEvent() => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+
+    /// <summary>
+    /// Событие при нажатии отменить
+    /// </summary>
+    /// <returns></returns>
+    private async Task NoAgreeEvent() => await BlazoredModal.CloseAsync(ModalResult.Ok(false));
+}

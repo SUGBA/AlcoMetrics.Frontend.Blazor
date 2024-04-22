@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Blazored.LocalStorage;
 using Client.Auth.Abstract;
+using Client.Configuration.ApiConfiguration;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Client.Auth.Share
@@ -12,17 +13,12 @@ namespace Client.Auth.Share
     {
         private readonly ILocalStorageService _localStorageService;
 
-        private readonly IConfiguration _configuration;
-
         private readonly IClaimsPrincipalConverterService _tokenProviderService;
 
-        public IdentityAuthenticationStateProvider(
-            ILocalStorageService localStorageService,
-            IConfiguration configuration,
+        public IdentityAuthenticationStateProvider(ILocalStorageService localStorageService, 
             IClaimsPrincipalConverterService tokenProviderService)
         {
             _localStorageService = localStorageService;
-            _configuration = configuration;
             _tokenProviderService = tokenProviderService;
         }
 
@@ -33,7 +29,7 @@ namespace Client.Auth.Share
         /// <exception cref="NotImplementedException"></exception>
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var tokenClaimName = _configuration["AuthSetting:TokenVariableName"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            var tokenClaimName = AuthApiConfiguration.TokenVariableName;
             var token = await _localStorageService.GetItemAsStringAsync(tokenClaimName);
 
             if (!string.IsNullOrEmpty(token))
@@ -53,7 +49,7 @@ namespace Client.Auth.Share
         {
             var authUser = _tokenProviderService.GetClaimsPrincipal(token);
             if (authUser == null) return;
-            var tokenClaimName = _configuration["AuthSetting:TokenVariableName"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            var tokenClaimName = AuthApiConfiguration.TokenVariableName;
             await _localStorageService.SetItemAsStringAsync(tokenClaimName, token);
 
             var authState = Task.FromResult(new AuthenticationState(authUser));
@@ -62,7 +58,7 @@ namespace Client.Auth.Share
 
         public async Task UnAuthorizeUser()
         {
-            var tokenClaimName = _configuration["AuthSetting:TokenVariableName"] ?? throw new Exception("Отсутсвует наименование токена в конфигурации");
+            var tokenClaimName = AuthApiConfiguration.TokenVariableName;
             await _localStorageService.RemoveItemAsync(tokenClaimName);
 
             var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));

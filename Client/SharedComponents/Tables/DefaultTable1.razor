@@ -64,7 +64,7 @@
     /// <summary>
     /// Строки
     /// </summary>
-    [Parameter]
+    [EditorRequired, Parameter]
     public List<Row> Data { get; set; } = new();
 
     /// <summary>
@@ -104,11 +104,22 @@
         StateHasChanged();
     }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         Edits = Data.Select(x => x).ToDictionary(k => k.Id, v => default(Boolean));
-
         UpdatedRows = Data.Select(x => x).ToDictionary(k => k.Id, v => v.Cells[0]);
+    }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<List<Row>>(nameof(Data), out var value))
+        {
+            Data = value;
+            Edits = value.Select(x => x).ToDictionary(k => k.Id, v => default(Boolean));
+            UpdatedRows = value.Select(x => x).ToDictionary(k => k.Id, v => v.Cells[0]);
+        }
+
+        return base.SetParametersAsync(parameters);
     }
 
     /// <summary>
@@ -119,8 +130,6 @@
     private async Task DeletedRow(int id)
     {
         await DeleteButtonEvent.InvokeAsync(id);
-        Edits.Remove(id);
-        UpdatedRows.Remove(id);
     }
 
     /// <summary>
@@ -143,6 +152,5 @@
             var editRow = new EditRow() { Id = id, UpdatedName = UpdatedRows[id] };
             await EditButtonEvent.InvokeAsync(editRow);
         }
-        ChangeRow(id);
     }
 }

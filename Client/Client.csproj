@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\ProjectsPage\Response\**" />
+    <Content Remove="Pages\ProjectsPage\Response\**" />
+    <EmbeddedResource Remove="Pages\ProjectsPage\Response\**" />
+    <None Remove="Pages\ProjectsPage\Response\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Blazored.Modal" Version="7.3.1" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
@@ -14,25 +21,18 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.4" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Auth\PasswordAuthentification\Models\" />
-    <Folder Include="Pages\ProjectsPage\Response\" />
-    <Folder Include="Pages\ProjectsPage\Request\" />
+    <Folder Include="Pages\ProjectsPage\Models\Response\" />
     <Folder Include="Pages\TimeLineDayPage\Request\" />
     <Folder Include="Pages\TimeLineDayPage\Response\" />
     <Folder Include="Pages\TimeLinePage\Request\" />
     <Folder Include="Pages\TimeLinePage\Response\" />
     <Folder Include="wwwroot\css\" />
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="wwwroot\appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>

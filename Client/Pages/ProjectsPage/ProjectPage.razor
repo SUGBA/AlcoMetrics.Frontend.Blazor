@@ -1,16 +1,22 @@
 ﻿@page "/ProjectPage"
 @using Client.Pages.ProjectsPage.Components
 @using Client.Pages.ProjectsPage.Models
+@using Client.Pages.ProjectsPage.Models.Request
+@using Client.Pages.ProjectsPage.Services
 @using Client.SharedComponents.Forms
+@using Client.SharedComponents.Modal
 @using Client.SharedComponents.Selectors
 @using Client.SharedComponents.Tables.Models
 @rendermode RenderMode.InteractiveWebAssembly
+@inject IProjectPageApiService _projectPageApiService
+@inherits ComponentBase
 
 <div class="contentRowsContainer">
     <div class="listProjects">
-        <DefaultTable1 Headers="TableHeaders" Data="ProjectData" DeleteButtonEvent="DeleteRow" EditButtonEvent="EditRow">
-
-        </DefaultTable1>
+        @if (ProjectData != null)
+        {
+            <DefaultTable1 Headers="TableHeaders" Data="ProjectData" DeleteButtonEvent="DeleteRow" EditButtonEvent="EditRow" />
+        }
     </div>
     <div class="selectStartDataInputType">
         <BaseSelector Options="SelectorOptions" SelectOptionEvent="SelectCreateProjectType" TEnumType="SelectorEnum" />
@@ -20,9 +26,15 @@
 
 @code {
     /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter]
+    public IModalService Modal { get; set; } = default!;
+
+    /// <summary>
     /// Список проектов
     /// </summary>
-    public List<Row> ProjectData { get; set; } = new();
+    public List<Row>? ProjectData { get; set; }
 
     /// <summary>
     /// Заголовки таблицы с проектами
@@ -39,12 +51,14 @@
     /// </summary>
     private RenderFragment CreateProjectForm = builder => { };
 
-    protected override void OnInitialized()
-    {
-        ProjectData = GetProjects();
-        SelectorOptions = GetCreateProjectTypes();
+    private const string IS_SURE_DELETE_PROJECT_MESSAGE = "Вы уверены, что хотите удалить проект. Удаленный проект не подлежит восстановлению.";
 
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectData = await GetProjects();
+        SelectorOptions = GetCreateProjectTypes();
         TableHeaders = new List<string>() { "Наименование проекта", "Количество мероприятий" };
+        StateHasChanged();
     }
 
     /// <summary>
@@ -65,24 +79,25 @@
     /// Получить список проектов
     /// </summary>
     /// <returns></returns>
-    private List<Row> GetProjects()
+    private async Task<List<Row>> GetProjects()
     {
-        return new List<Row>()
-        {
-            new Row(){Cells = { "Проект №1", "2"}, Id = 0},
-            new Row(){Cells = { "Проект №2", "0"}, Id = 1},
-            new Row(){Cells = { "Проект №3", "1"}, Id = 2},
-            new Row(){Cells = { "Проект №4", "3"}, Id = 3}
-        };
+        var projects = await _projectPageApiService.GetListProjectsAsync();
+        if (projects == null) return new List<Row>();
+
+        var result = projects.Select(x => new Row() { Cells = new List<string>() { x.ProjectName, x.EventCount.ToString() }, Id = x.Id }).ToList();
+        return result;
     }
 
     /// <summary>
     /// Изменение элемента
     /// </summary>
     /// <param name="row"> Изменяемая строка </param>
-    private void EditRow(EditRow row)
+    private async Task EditRow(EditRow row)
     {
-        var changedItem = ProjectData.FirstOrDefault(x => x.Id == row.Id);
+        var result = await _projectPageApiService.ChangeProjectNameAsync(new ChangeProjectNameRequest() { Id = row.Id, NewProjectName = row.UpdatedName });
+        if (!result) return;
+
+        var changedItem = ProjectData?.FirstOrDefault(x => x.Id == row.Id);
         if (changedItem is not null)
             changedItem.Cells[0] = row.UpdatedName;
     }
@@ -91,11 +106,16 @@
     /// Удаление элемента из списка
     /// </summary>
     /// <param name="rowId"> Id проекта </param>
-    private void DeleteRow(int rowId)
+    private async Task DeleteRow(int rowId)
     {
-        var removedItem = ProjectData.FirstOrDefault(x => x.Id == rowId);
+        if (!await SchowModalAndGetResult(IS_SURE_DELETE_PROJECT_MESSAGE, "Подтверждение удаления проекта")) return;
+
+        var result = await _projectPageApiService.DeleteProjectAsync(rowId);
+        if (!result) return;
+
+        var removedItem = ProjectData?.FirstOrDefault(x => x.Id == rowId);
         if (removedItem is not null)
-            ProjectData.Remove(removedItem);
+            ProjectData?.Remove(removedItem);
     }
 
     /// <summary>
@@ -120,5 +140,25 @@
                 CreateProjectForm = builder => { };
                 break;
         }
+    }
+
+    /// <summary>
+    /// Отобразить модалку продолжения операции и получить результат
+    /// </summary>
+    /// <param name="message"> Сообщение </param>
+    /// <param name="title"> Заголовок </param>
+    /// <returns></returns>
+    private async Task<bool> SchowModalAndGetResult(string message, string title)
+    {
+        var modalParams = new ModalParameters().Add(nameof(IsAgreeModal.Message), message);
+        var messageForm = Modal.Show<IsAgreeModal>(title, modalParams);
+        var modalResult = await messageForm.Result;
+
+        bool isAgree = false;
+
+        if (modalResult.Confirmed)
+            isAgree = Convert.ToBoolean(modalResult.Data);
+
+        return isAgree;
     }
 }

@@ -39,7 +39,7 @@
         if (!string.IsNullOrEmpty(token))
         {
             await ((IdentityAuthenticationStateProvider)authenticationStateProvider).AuthorizeUser(token);
-            Navigation.NavigateTo("ProjectPage");
+            Navigation.NavigateTo("/");
         }
         else
         {

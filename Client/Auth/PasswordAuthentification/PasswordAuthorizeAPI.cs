@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Client.Auth.PasswordAuthentification.Abstract;
-using Client.Extensions;
+using Client.Configuration.ApiConfiguration;
 
 namespace Client.Auth.PasswordAuthentification
 {
@@ -11,20 +11,17 @@ namespace Client.Auth.PasswordAuthentification
     {
         private static string REGISTER_API_ERROR = "Ошибка при регистрации. Возможно сервис недоступен. Попробуйте позже";
 
-        private readonly IConfiguration _configuration;
-
         private readonly HttpClient _httpClient;
 
-        public PasswordAuthorizeAPI(IConfiguration configuration, HttpClient httpClient)
+        public PasswordAuthorizeAPI(HttpClient httpClient)
         {
-            _configuration = configuration;
             _httpClient = httpClient;
         }
 
         public async Task<string?> Login(string login, string password)
         {
-            var domenPath = _configuration.TryGetValue("AuthSetting:AuthenticationServicePath", "Конфигурация не содержит доменный путь до агрегирующего сервиса");
-            var loginPath = _configuration.TryGetValue("AuthSetting:LoginPath", "Конфигурация не содержит путь до точки с аутентификацией");
+            var domenPath = BackendApiConfiguration.DomenPath;
+            var loginPath = BackendApiConfiguration.LoginPath;
             var path = $"{domenPath}/{loginPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, new { Login = login, Password = password });
@@ -45,8 +42,8 @@ namespace Client.Auth.PasswordAuthentification
         /// <returns></returns>
         public async Task<IEnumerable<string>> Register(string login, string password)
         {
-            var domenPath = _configuration.TryGetValue("AuthSetting:AuthenticationServicePath", "Конфигурация не содержит доменный путь до агрегирующего сервиса");
-            var registerPath = _configuration.TryGetValue("AuthSetting:RegisterPath", "Конфигурация не содержит путь до точки с регистрацией");
+            var domenPath = BackendApiConfiguration.DomenPath;
+            var registerPath = BackendApiConfiguration.RegisterPath;
             var path = $"{domenPath}/{registerPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, new { Login = login, Password = password });

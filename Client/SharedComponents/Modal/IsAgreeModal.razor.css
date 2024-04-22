@@ -1,0 +1,16 @@
+﻿.Message {
+    font-size: 18px;
+    text-align: center;
+}
+
+.buttonsDiv {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+}
+
+::deep .baseButton {
+    width: auto;
+    height: auto;
+    font-size: 16px;
+}

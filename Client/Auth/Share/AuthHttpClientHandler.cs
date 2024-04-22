@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Blazored.LocalStorage;
-using Client.Extensions;
-using Microsoft.Extensions.Configuration;
+using Client.Configuration.ApiConfiguration;
+using System.Net.Http.Headers;
+using Microsoft.Net.Http.Headers;
 
 namespace Client.Auth.Share
 {
@@ -11,17 +12,12 @@ namespace Client.Auth.Share
     /// </summary>
     public class AuthHttpClientHandler : DelegatingHandler
     {
-        private readonly IConfiguration _configuration;
-
         private readonly ILocalStorageService _localStorageService;
 
         private readonly NavigationManager _navigationManager;
 
-        public AuthHttpClientHandler(IConfiguration configuration,
-            ILocalStorageService localStorageService,
-            NavigationManager navigationManager)
+        public AuthHttpClientHandler(ILocalStorageService localStorageService, NavigationManager navigationManager)
         {
-            _configuration = configuration;
             _localStorageService = localStorageService;
             _navigationManager = navigationManager;
         }
@@ -29,6 +25,8 @@ namespace Client.Auth.Share
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            await SetTokenToRequest(request);
+
             var response = await base.SendAsync(request, cancellationToken);
 
             await CorrectAfter401Result(response);
@@ -46,10 +44,24 @@ namespace Client.Auth.Share
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                var tokenVariableName = _configuration.TryGetValue("AuthSetting:TokenVariableName", "Конфигурация не содержит наименования переменной с полем. Ошибка при обработке не авторизованного пользователя.");
+                var tokenVariableName = AuthApiConfiguration.TokenVariableName;
                 await _localStorageService.RemoveItemAsync(tokenVariableName);
                 _navigationManager.NavigateTo("/auth", forceLoad: true);
             }
+        }
+
+        /// <summary>
+        /// Установить токен в случае его существования каждый запрос из LocalStorage
+        /// </summary>
+        /// <param name="request"> Запрос </param>
+        /// <returns></returns>
+        private async Task SetTokenToRequest(HttpRequestMessage request)
+        {
+            var tokenVariableName = AuthApiConfiguration.TokenVariableName;
+            var token = await _localStorageService.GetItemAsync<string>(tokenVariableName);
+
+            if (token != null)
+                request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
         }
     }
 }

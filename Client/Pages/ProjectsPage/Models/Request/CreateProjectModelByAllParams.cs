@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Client.Pages.ProjectsPage.Request;
 
-namespace Client.Pages.ProjectsPage.Request
+namespace Client.Pages.ProjectsPage.Models.Request
 {
     /// <summary>
     /// Модель создания проекта по всем показателям
