@@ -68,11 +68,11 @@
     private Dictionary<string, SelectorEnum> GetCreateProjectTypes()
     {
         return new Dictionary<string, SelectorEnum>()
-        {
+                {
             {"Ареометр", SelectorEnum.ByAreometer },
             {"Сорт винограда", SelectorEnum.ByGrapeVarety },
             {"Ввод показателей", SelectorEnum.ByAllParams },
-        };
+                };
     }
 
     /// <summary>
@@ -108,7 +108,7 @@
     /// <param name="rowId"> Id проекта </param>
     private async Task DeleteRow(int rowId)
     {
-        if (!await SchowModalAndGetResult(IS_SURE_DELETE_PROJECT_MESSAGE, "Подтверждение удаления проекта")) return;
+        if (!await ShowModalAndGetResult(IS_SURE_DELETE_PROJECT_MESSAGE, "Подтверждение удаления проекта")) return;
 
         var result = await _projectPageApiService.DeleteProjectAsync(rowId);
         if (!result) return;
@@ -123,12 +123,12 @@
     /// </summary>
     /// <param name="type">Тип создания проекта</param>
     /// <returns></returns>
-    public void SelectCreateProjectType(SelectorEnum type)
+    private void SelectCreateProjectType(SelectorEnum type)
     {
         switch (type)
         {
             case SelectorEnum.ByAllParams:
-                CreateProjectForm = @<ProjectsPageByAllParamsPage></ProjectsPageByAllParamsPage>;
+                CreateProjectForm = @<ProjectsPageByAllParamsPage SubmitButton="CreateByAllParams"></ProjectsPageByAllParamsPage>;
                 break;
             case SelectorEnum.ByAreometer:
                 CreateProjectForm = @<ProjectsPageByAreometerPage></ProjectsPageByAreometerPage>;
@@ -143,12 +143,49 @@
     }
 
     /// <summary>
+    /// Обработчик события создания проекта путем ввода всех параметров
+    /// </summary>
+    /// <param name="request"> Модель по которой создается </param>
+    /// <returns></returns>
+    private async Task CreateByAllParams(CreateProjectModelByAllParams request)
+    {
+        var response = await _projectPageApiService.CreateTimeLineByAllParamsAsync(request);
+        if (!string.IsNullOrEmpty(response.Error))
+        {
+            ShowErrorModal(response.Error, "Ошибка при создании проекта");
+            return;
+        }
+
+        if (response.CreatedProject == null)
+        {
+            ShowErrorModal("Проект не был создан", "Ошибка при создании проекта");
+            return;
+        }
+
+        var result = new Row()
+            {
+                Cells = new List<string>() { response.CreatedProject.ProjectName, response.CreatedProject.EventCount.ToString() },
+                Id = response.CreatedProject.Id
+            };
+
+        ProjectData ??= new List<Row>();
+        ProjectData.Add(result);
+    }
+
+    private void ShowErrorModal(string message, string title)
+    {
+        var errors = new List<string> { message };
+        var parameter = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>(title, parameter);
+    }
+
+    /// <summary>
     /// Отобразить модалку продолжения операции и получить результат
     /// </summary>
     /// <param name="message"> Сообщение </param>
     /// <param name="title"> Заголовок </param>
     /// <returns></returns>
-    private async Task<bool> SchowModalAndGetResult(string message, string title)
+    private async Task<bool> ShowModalAndGetResult(string message, string title)
     {
         var modalParams = new ModalParameters().Add(nameof(IsAgreeModal.Message), message);
         var messageForm = Modal.Show<IsAgreeModal>(title, modalParams);

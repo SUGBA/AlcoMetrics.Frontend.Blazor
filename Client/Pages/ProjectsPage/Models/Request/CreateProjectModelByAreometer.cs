@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Client.Pages.ProjectsPage.Request
 {
@@ -10,6 +11,7 @@ namespace Client.Pages.ProjectsPage.Request
         /// <summary>
         /// Показания Ареометра
         /// </summary>
+        [JsonPropertyName("AreometerValue")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 1135, ErrorMessage = "Невозможное значение ареометра")]
         public float? AreometerValue { get; set; }

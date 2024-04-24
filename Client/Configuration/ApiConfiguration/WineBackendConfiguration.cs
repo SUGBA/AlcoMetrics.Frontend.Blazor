@@ -27,6 +27,11 @@
         /// </summary>
         public static string DeleteProjectPath = "ProjectsPage/DeleteProject";
 
+        /// <summary>
+        /// Точка для создание проекта путем ввода всех параметров
+        /// </summary>
+        public static string CreateProjectByAllParamas = "ProjectsPage/CreateTimeLineByAllParams";
+
         #endregion
     }
 }

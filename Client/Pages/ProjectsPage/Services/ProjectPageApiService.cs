@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Net.Http.Json;
-using System.Reflection;
+﻿using System.Net.Http.Json;
 using Client.Configuration.ApiConfiguration;
 using Client.Pages.ProjectsPage.Models.Request;
 using Client.Pages.ProjectsPage.Models.Response;
+using Client.Pages.ProjectsPage.Request;
 
 namespace Client.Pages.ProjectsPage.Services
 {
@@ -12,6 +11,8 @@ namespace Client.Pages.ProjectsPage.Services
     /// </summary>
     public class ProjectPageApiService : IProjectPageApiService
     {
+        private const string EMPTY_RESPONSE_ERROR = "В ходе создания проекта, произошла ошибка. Возможно сервис недоступен в данный момент. Попробуйте позже";
+
         private readonly HttpClient _httpClient;
 
         public ProjectPageApiService(HttpClient httpClient)
@@ -35,6 +36,42 @@ namespace Client.Pages.ProjectsPage.Services
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<bool>();
             return false;
+        }
+
+        /// <summary>
+        /// Создать таймлайн путем ввода всех параметров
+        /// </summary>
+        /// <param name="request"> Данные для генерации таймлайна </param>
+        /// <returns></returns>
+        public async Task<CreateProjectResponse> CreateTimeLineByAllParamsAsync(CreateProjectModelByAllParams request)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var createProjectPath = WineBackendConfiguration.CreateProjectByAllParamas;
+            var path = $"{domenPath}/{createProjectPath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+            return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+        }
+
+        /// <summary>
+        /// Создать таймлайн путем ввода показаний ареометра
+        /// </summary>
+        /// <param name="request"> Данные для генерации таймлайна </param>
+        /// <returns></returns>
+        public Task<CreateProjectResponse> CreateTimeLineByAreometerAsync(CreateProjectModelByAreometer request)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Создать таймлайн путем выбора сорта винограда
+        /// </summary>
+        /// <param name="request"> Данные для генерации таймлайна </param>
+        /// <returns></returns>
+        public Task<CreateProjectResponse> CreateTimeLineByGrapeVaretyAsync(CreateProjectModelByGrapeVarety request)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

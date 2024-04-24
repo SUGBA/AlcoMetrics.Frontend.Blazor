@@ -34,21 +34,17 @@
     [CascadingParameter] public IModalService Modal { get; set; } = default!;
 
     /// <summary>
+    /// Обработчик нажатия кнопки отправить
+    /// </summary>
+    [Parameter]
+    public EventCallback<CreateProjectModelByAllParams> SubmitButton { get; set; }
+
+    /// <summary>
     /// Получение сортов винограда
     /// </summary>
     /// <returns></returns>
-    private void OnSubmit()
+    private async Task OnSubmit()
     {
-        var viewDict = new Dictionary<string, string>()
-        {
-            {"Текущее содержание сахара", Model.SugarValue==null?string.Empty:((float)Model.SugarValue).ToString()},
-            {"Текущее содержание спирта", Model.AlcoholValue==null?string.Empty:((float)Model.AlcoholValue).ToString()},
-            {"Имя проекта", Model.ProjectName??string.Empty},
-            {"Желаемый сахар", Model.DesiredSugarValue==null?string.Empty:((float)Model.DesiredSugarValue).ToString()},
-            {"Желаемый спирт", Model.DesiredAlcoholValue==null?string.Empty:((float)Model.DesiredAlcoholValue).ToString()},
-            {"Объем", Model.Wort==null?string.Empty:((float)Model.Wort).ToString()}
-        };
-        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
-        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+        await SubmitButton.InvokeAsync(Model);
     }
 }

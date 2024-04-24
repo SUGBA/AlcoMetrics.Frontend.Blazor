@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Client.Pages.ProjectsPage.Request;
 
 namespace Client.Pages.ProjectsPage.Models.Request
@@ -11,6 +12,7 @@ namespace Client.Pages.ProjectsPage.Models.Request
         /// <summary>
         /// Содержание алкоголя
         /// </summary>
+        [JsonPropertyName("AlcoholValue")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 100, ErrorMessage = "Недостижимое содержание спирта")]
         public float? AlcoholValue { get; set; }
@@ -18,6 +20,7 @@ namespace Client.Pages.ProjectsPage.Models.Request
         /// <summary>
         /// Содрежание сахара
         /// </summary>
+        [JsonPropertyName("SugarValue")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 1000, ErrorMessage = "Недостижимое содержание сахара")]
         public float? SugarValue { get; set; }
