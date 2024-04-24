@@ -2,7 +2,6 @@
 @using Client.SharedComponents.Forms
 @using Client.SharedComponents.Modal
 @using Client.SharedComponents.Selectors
-@inject Blazored.Modal.Services.IModalService ModalService
 @rendermode RenderMode.InteractiveWebAssembly
 
 <DefaultForm1 Header="Первичные данные" Model="Model" TModelType="CreateProjectModelByGrapeVarety" SubmitButton="OnSubmit">
@@ -22,10 +21,7 @@
 </DefaultForm1>
 
 @code {
-    /// <summary>
-    /// Модалка
-    /// </summary>
-    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+    private const string GET_GRAPE_VARIETIES_ERROR = "Не удалось получить список сортов винограда. Попробуйте повторить попытку позже";
 
     /// <summary>
     /// Модель для создания по сорту винограда
@@ -35,49 +31,44 @@
     /// <summary>
     /// Сорта винограда
     /// </summary>
-    private Dictionary<string, string> ListGrapeVarieties = new();
-
-    protected override void OnInitialized()
-    {
-        var a = Model;
-        ListGrapeVarieties = GetListGrapeVarieties();
-    }
+    [EditorRequired, Parameter]
+    public Dictionary<string, string> ListGrapeVarieties { get; set; } = new();
 
     /// <summary>
-    /// Получение сортов винограда
+    /// Обработчик нажатия кнопки отправить
     /// </summary>
-    /// <returns></returns>
-    private Dictionary<string, string> GetListGrapeVarieties()
-    {
-        return new Dictionary<string, string>()
-        {
-            {"Изабела", "Изабела"},
-            {"Кишмиш", "Кишмиш"},
-            {"Шуньчуан", "Шуньчуан"},
-            {"Саперави", "Саперави"},
-        };
-    }
+    [Parameter]
+    public EventCallback<CreateProjectModelByGrapeVarety> SubmitButton { get; set; }
 
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter]
+    public IModalService Modal { get; set; } = default!;
+
+    protected override void OnParametersSet()
+    {
+        if (ListGrapeVarieties.Count == 0)
+            ShowErrorModal(GET_GRAPE_VARIETIES_ERROR, "Ошибка при получении сортов винограда");
+    }
 
     /// <summary>
     /// Обработчик кнопки создать
     /// </summary>
-    private void OnSubmit(CreateProjectModelByGrapeVarety model)
+    private async Task OnSubmit(CreateProjectModelByGrapeVarety model)
     {
-        var viewDict = new Dictionary<string, string>()
-        {
-            {"Сорт винограда", Model.GrapeName??string.Empty},
-            {"Имя проекта", Model.ProjectName??string.Empty},
-            {"Желаемый сахар", Model.DesiredSugarValue==null?string.Empty:((float)Model.DesiredSugarValue).ToString()},
-            {"Желаемый спирт", Model.DesiredAlcoholValue==null?string.Empty:((float)Model.DesiredAlcoholValue).ToString()},
-            {"Объем", Model.Wort==null?string.Empty:((float)Model.Wort).ToString()}
-        };
-        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
-        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+        await SubmitButton.InvokeAsync(Model);
     }
 
     private void SelectOption(string selectedGrapeVarety)
     {
         Model.GrapeName = selectedGrapeVarety;
+    }
+
+    private void ShowErrorModal(string message, string title)
+    {
+        var errors = new List<string> { message };
+        var parameter = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>(title, parameter);
     }
 }

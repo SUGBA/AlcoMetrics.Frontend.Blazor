@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Reflection;
 using Client.Configuration.ApiConfiguration;
 using Client.Pages.ProjectsPage.Models.Request;
 using Client.Pages.ProjectsPage.Models.Response;
@@ -46,7 +47,7 @@ namespace Client.Pages.ProjectsPage.Services
         public async Task<CreateProjectResponse> CreateTimeLineByAllParamsAsync(CreateProjectModelByAllParams request)
         {
             var domenPath = WineBackendConfiguration.DomenPath;
-            var createProjectPath = WineBackendConfiguration.CreateProjectByAllParamas;
+            var createProjectPath = WineBackendConfiguration.CreateProjectByAllParamasPath;
             var path = $"{domenPath}/{createProjectPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
@@ -59,9 +60,15 @@ namespace Client.Pages.ProjectsPage.Services
         /// </summary>
         /// <param name="request"> Данные для генерации таймлайна </param>
         /// <returns></returns>
-        public Task<CreateProjectResponse> CreateTimeLineByAreometerAsync(CreateProjectModelByAreometer request)
+        public async Task<CreateProjectResponse> CreateTimeLineByAreometerAsync(CreateProjectModelByAreometer request)
         {
-            throw new NotImplementedException();
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var createProjectPath = WineBackendConfiguration.CreateProjectByAreometerPath;
+            var path = $"{domenPath}/{createProjectPath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+            return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
         }
 
         /// <summary>
@@ -69,9 +76,15 @@ namespace Client.Pages.ProjectsPage.Services
         /// </summary>
         /// <param name="request"> Данные для генерации таймлайна </param>
         /// <returns></returns>
-        public Task<CreateProjectResponse> CreateTimeLineByGrapeVaretyAsync(CreateProjectModelByGrapeVarety request)
+        public async Task<CreateProjectResponse> CreateTimeLineByGrapeVaretyAsync(CreateProjectModelByGrapeVarety request)
         {
-            throw new NotImplementedException();
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var createProjectPath = WineBackendConfiguration.CreateProjectByGrapeVaretyPath;
+            var path = $"{domenPath}/{createProjectPath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+            return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
         }
 
         /// <summary>
@@ -93,6 +106,23 @@ namespace Client.Pages.ProjectsPage.Services
         }
 
         /// <summary>
+        /// Получить список сортов винограда
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<string>> GetGrapeVarietiesAsync()
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var getGrapeVarietiesPath = WineBackendConfiguration.GetGrapeVarietiesPath;
+            var path = $"{domenPath}/{getGrapeVarietiesPath}";
+
+            var response = await _httpClient.GetAsync(path);
+
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<IEnumerable<string>>() ?? Enumerable.Empty<string>();
+            return Enumerable.Empty<string>();
+        }
+
+        /// <summary>
         /// Получить список мероприятий
         /// </summary>
         /// <returns></returns>
@@ -103,10 +133,6 @@ namespace Client.Pages.ProjectsPage.Services
             var path = $"{domenPath}/{getProjectsPath}";
 
             var response = await _httpClient.PostAsync(path, null);
-
-            //_httpClient.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
-            //_httpClient.DefaultRequestHeaders.Add("Access-Control-Allow-Credentials", "true");
-            //_httpClient.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type");
 
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<IEnumerable<ProjectResponse>>();

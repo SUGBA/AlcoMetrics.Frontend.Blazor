@@ -30,7 +30,22 @@
         /// <summary>
         /// Точка для создание проекта путем ввода всех параметров
         /// </summary>
-        public static string CreateProjectByAllParamas = "ProjectsPage/CreateTimeLineByAllParams";
+        public static string CreateProjectByAllParamasPath = "ProjectsPage/CreateTimeLineByAllParams";
+
+        /// <summary>
+        /// Точка для создание проекта путем ввода показания ареометра
+        /// </summary>
+        public static string CreateProjectByAreometerPath = "ProjectsPage/CreateTimeLineByAreometer";
+
+        /// <summary>
+        /// Точка для создание проекта путем ввода всех параметров
+        /// </summary>
+        public static string CreateProjectByGrapeVaretyPath = "ProjectsPage/CreateTimeLineByGrapeVarety";
+
+        /// <summary>
+        /// Точка для получения списка сортов винограда
+        /// </summary>
+        public static string GetGrapeVarietiesPath = "ProjectsPage/GetGrapeVarieties";
 
         #endregion
     }

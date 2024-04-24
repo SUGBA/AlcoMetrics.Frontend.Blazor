@@ -2,6 +2,7 @@
 @using Client.Pages.ProjectsPage.Components
 @using Client.Pages.ProjectsPage.Models
 @using Client.Pages.ProjectsPage.Models.Request
+@using Client.Pages.ProjectsPage.Request
 @using Client.Pages.ProjectsPage.Services
 @using Client.SharedComponents.Forms
 @using Client.SharedComponents.Modal
@@ -9,13 +10,14 @@
 @using Client.SharedComponents.Tables.Models
 @rendermode RenderMode.InteractiveWebAssembly
 @inject IProjectPageApiService _projectPageApiService
+@inject NavigationManager navManager
 @inherits ComponentBase
 
 <div class="contentRowsContainer">
     <div class="listProjects">
         @if (ProjectData != null)
         {
-            <DefaultTable1 Headers="TableHeaders" Data="ProjectData" DeleteButtonEvent="DeleteRow" EditButtonEvent="EditRow" />
+            <DefaultTable1 Headers="TableHeaders" Data="ProjectData" DeleteButtonEvent="DeleteRow" EditButtonEvent="EditRow" SelectRow="SelectProject" />
         }
     </div>
     <div class="selectStartDataInputType">
@@ -47,6 +49,12 @@
     private Dictionary<string, SelectorEnum> SelectorOptions = new();
 
     /// <summary>
+    /// Словарь где ключ и значение сопадают.
+    /// Потому что ключ и значение совпадают (На бэк передаем название сорта винограда)
+    /// </summary>
+    private Dictionary<string, string> GrapeVarieties = new();
+
+    /// <summary>
     /// Форма для создания проекта
     /// </summary>
     private RenderFragment CreateProjectForm = builder => { };
@@ -58,6 +66,7 @@
         ProjectData = await GetProjects();
         SelectorOptions = GetCreateProjectTypes();
         TableHeaders = new List<string>() { "Наименование проекта", "Количество мероприятий" };
+        GrapeVarieties = await GetListGrapeVarieties();
         StateHasChanged();
     }
 
@@ -68,11 +77,19 @@
     private Dictionary<string, SelectorEnum> GetCreateProjectTypes()
     {
         return new Dictionary<string, SelectorEnum>()
-                {
+            {
             {"Ареометр", SelectorEnum.ByAreometer },
             {"Сорт винограда", SelectorEnum.ByGrapeVarety },
             {"Ввод показателей", SelectorEnum.ByAllParams },
-                };
+            };
+    }
+
+    /// <summary>
+    /// Обработчик выбора определнного проекта в списке
+    /// </summary>
+    private void SelectProject(int rowId)
+    {
+        navManager.NavigateTo($"/TimeLinePage/{rowId}");
     }
 
     /// <summary>
@@ -131,15 +148,22 @@
                 CreateProjectForm = @<ProjectsPageByAllParamsPage SubmitButton="CreateByAllParams"></ProjectsPageByAllParamsPage>;
                 break;
             case SelectorEnum.ByAreometer:
-                CreateProjectForm = @<ProjectsPageByAreometerPage></ProjectsPageByAreometerPage>;
+                CreateProjectForm = @<ProjectsPageByAreometerPage SubmitButton="CreateByAreometer"></ProjectsPageByAreometerPage>;
                 break;
             case SelectorEnum.ByGrapeVarety:
-                CreateProjectForm = @<ProjectsPageByGrapeVaretyPage></ProjectsPageByGrapeVaretyPage>;
+                CreateProjectForm = @<ProjectsPageByGrapeVaretyPage SubmitButton="CreateByGrapeVarety" ListGrapeVarieties="GrapeVarieties"></ProjectsPageByGrapeVaretyPage>;
                 break;
             default:
                 CreateProjectForm = builder => { };
                 break;
         }
+    }
+
+    private async Task<Dictionary<string, string>> GetListGrapeVarieties()
+    {
+        var list = await _projectPageApiService.GetGrapeVarietiesAsync();
+
+        return list.ToDictionary(key => key, val => val);
     }
 
     /// <summary>
@@ -150,6 +174,66 @@
     private async Task CreateByAllParams(CreateProjectModelByAllParams request)
     {
         var response = await _projectPageApiService.CreateTimeLineByAllParamsAsync(request);
+        if (!string.IsNullOrEmpty(response.Error))
+        {
+            ShowErrorModal(response.Error, "Ошибка при создании проекта");
+            return;
+        }
+
+        if (response.CreatedProject == null)
+        {
+            ShowErrorModal("Проект не был создан", "Ошибка при создании проекта");
+            return;
+        }
+
+        var result = new Row()
+            {
+                Cells = new List<string>() { response.CreatedProject.ProjectName, response.CreatedProject.EventCount.ToString() },
+                Id = response.CreatedProject.Id
+            };
+
+        ProjectData ??= new List<Row>();
+        ProjectData.Add(result);
+    }
+
+    /// <summary>
+    /// Обработчик события создания проекта путем ввода впоказания ареометра
+    /// </summary>
+    /// <param name="request"> Модель по которой создается </param>
+    /// <returns></returns>
+    private async Task CreateByAreometer(CreateProjectModelByAreometer request)
+    {
+        var response = await _projectPageApiService.CreateTimeLineByAreometerAsync(request);
+        if (!string.IsNullOrEmpty(response.Error))
+        {
+            ShowErrorModal(response.Error, "Ошибка при создании проекта");
+            return;
+        }
+
+        if (response.CreatedProject == null)
+        {
+            ShowErrorModal("Проект не был создан", "Ошибка при создании проекта");
+            return;
+        }
+
+        var result = new Row()
+            {
+                Cells = new List<string>() { response.CreatedProject.ProjectName, response.CreatedProject.EventCount.ToString() },
+                Id = response.CreatedProject.Id
+            };
+
+        ProjectData ??= new List<Row>();
+        ProjectData.Add(result);
+    }
+
+    /// <summary>
+    /// Обработчик события создания проекта путем ввода впоказания ареометра
+    /// </summary>
+    /// <param name="request"> Модель по которой создается </param>
+    /// <returns></returns>
+    private async Task CreateByGrapeVarety(CreateProjectModelByGrapeVarety request)
+    {
+        var response = await _projectPageApiService.CreateTimeLineByGrapeVaretyAsync(request);
         if (!string.IsNullOrEmpty(response.Error))
         {
             ShowErrorModal(response.Error, "Ошибка при создании проекта");

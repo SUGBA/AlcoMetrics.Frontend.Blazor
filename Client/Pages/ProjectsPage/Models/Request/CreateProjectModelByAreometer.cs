@@ -14,6 +14,6 @@ namespace Client.Pages.ProjectsPage.Request
         [JsonPropertyName("AreometerValue")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 1135, ErrorMessage = "Невозможное значение ареометра")]
-        public float? AreometerValue { get; set; }
+        public int? AreometerValue { get; set; }
     }
 }

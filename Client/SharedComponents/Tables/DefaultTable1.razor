@@ -17,7 +17,7 @@
         {
             <th>@item</th>
         }
-        <th colspan="2">Редактирование</th>
+        <th colspan="3">Редактирование</th>
     </tr>
     @for (var i = 0; i < Data.Count; i++)
     {
@@ -43,11 +43,12 @@
             }
             else
             {
-                <td><a class="noselect" type="submit" @onclick="(()=>AcceptButton(Data[copyI].Id))">Подтвердить</a></td>
+                <td><a class="noselect" type="submit" @onclick="(async ()=> await AcceptButton(Data[copyI].Id))">Подтвердить</a></td>
                 <td><a class="noselect" @onclick="(()=>ChangeRow(Data[copyI].Id))">Отменить</a></td>
             }
 
-            <td><a class="noselect" @onclick="(()=> DeletedRow(Data[copyI].Id))">Удалить</a></td>
+            <td><a class="noselect" @onclick="(async ()=> await DeletedRow(Data[copyI].Id))">Удалить</a></td>
+            <td><a class="noselect" @onclick="(async ()=> await SelectRowEvent(Data[copyI].Id))">Подробнее</a></td>
 
         </tr>
     }
@@ -78,6 +79,12 @@
     /// </summary>
     [Parameter]
     public EventCallback<int> DeleteButtonEvent { get; set; }
+
+    /// <summary>
+    /// Обработчик события выбора строки
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> SelectRow { get; set; }
 
     /// <summary>
     /// Список флагов изменяемых строк
@@ -120,6 +127,16 @@
         }
 
         return base.SetParametersAsync(parameters);
+    }
+
+    /// <summary>
+    /// Вызов обработчика выбора определенной строки
+    /// </summary>
+    /// <param name="id"> id строки </param>
+    /// <returns></returns>
+    private async Task SelectRowEvent(int id)
+    {
+        await SelectRow.InvokeAsync(id);
     }
 
     /// <summary>
