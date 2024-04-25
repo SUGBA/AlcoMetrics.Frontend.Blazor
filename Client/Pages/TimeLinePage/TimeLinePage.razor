@@ -1,8 +1,13 @@
 ﻿@page "/TimeLinePage/{ProjectId:int}"
+@using Client.Pages.TimeLinePage.Response
 @using Client.Pages.TimeLinePage.Components
 @using Client.Pages.TimeLinePage.Request
+@using Client.Pages.TimeLinePage.Services
 @using Client.SharedComponents.Buttons
+@using Client.SharedComponents.Modal
 @rendermode RenderMode.InteractiveWebAssembly
+@inject ITimeLineApiService apiService
+@inject NavigationManager navManager
 
 <div class="contentRowsContainer">
     <div class="buttonContainer">
@@ -11,13 +16,15 @@
     <div class="daysContainer">
         @foreach (var item in Days)
         {
-            <CalendarDayItem Indicator="item" />
+            <CalendarDayItem Indicator="item" SelectCardEvent="SelectCard" />
         }
     </div>
 </div>
 
 @code {
     private List<DayIndicators> Days = new();
+
+    private const string EMPTY_LIST_DAYS_ERROR = "Ошибка в ходе получения дней мероприйтия. Список дней пуст";
 
     /// <summary>
     /// Id выбранного проекта
@@ -26,41 +33,46 @@
     [Parameter]
     public int ProjectId { get; set; }
 
-    protected override void OnInitialized()
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter]
+    public IModalService Modal { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
     {
-        Days = GetDays();
+        Days = await GetDays(ProjectId);
     }
 
-    private List<DayIndicators> GetDays()
+    /// <summary>
+    /// Получить список дней пользователя по id проекта
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <returns></returns>
+    private async Task<List<DayIndicators>> GetDays(int projectId)
     {
-        return new List<DayIndicators>()
+        var result = await apiService.GetDays(projectId);
+        if (result.Count() == 0)
         {
-            new DayIndicators(){ DayNumber = 1, Month = "Март", EthanolValue = 5.5f, EventCount =3, SugarValue = 78},
-            new DayIndicators(){ DayNumber = 2, Month = "Март", EthanolValue = 5.6f, EventCount =2, SugarValue = 75},
-            new DayIndicators(){ DayNumber = 3, Month = "Март", EthanolValue = 5.7f, EventCount =1, SugarValue = 76},
-            new DayIndicators(){ DayNumber = 4, Month = "Март", EthanolValue = 5.8f, EventCount =0, SugarValue = 74},
-            new DayIndicators(){ DayNumber = 5, Month = "Март", EthanolValue = 5.9f, EventCount =0, SugarValue = 71},
-            new DayIndicators(){ DayNumber = 6, Month = "Март", EthanolValue = 6.2f, EventCount =0, SugarValue = 70},
-            new DayIndicators(){ DayNumber = 7, Month = "Март", EthanolValue = 6.3f, EventCount =0, SugarValue = 65},
-            new DayIndicators(){ DayNumber = 8, Month = "Март", EthanolValue = 6.4f, EventCount =0, SugarValue = 66},
-            new DayIndicators(){ DayNumber = 9, Month = "Март", EthanolValue = 6.7f, EventCount =0, SugarValue =80},
-            new DayIndicators(){ DayNumber = 10, Month = "Март", EthanolValue = 6.7f, EventCount =2, SugarValue = 75},
-            new DayIndicators(){ DayNumber = 11, Month = "Март", EthanolValue = 7f, EventCount =0, SugarValue = 75},
-            new DayIndicators(){ DayNumber = 12, Month = "Март", EthanolValue = 7.3f, EventCount =0, SugarValue = 74},
-            new DayIndicators(){ DayNumber = 13, Month = "Март", EthanolValue = 7.5f, EventCount =0, SugarValue = 73},
-            new DayIndicators(){ DayNumber = 14, Month = "Март", EthanolValue = 7.8f, EventCount =0, SugarValue = 72},
-            new DayIndicators(){ DayNumber = 15, Month = "Март", EthanolValue = 8f, EventCount =1, SugarValue = 71},
-            new DayIndicators(){ DayNumber = 16, Month = "Март", EthanolValue = 8.3f, EventCount =1, SugarValue = 73},
-            new DayIndicators(){ DayNumber = 17, Month = "Март", EthanolValue = 8.4f, EventCount =0, SugarValue = 72},
-            new DayIndicators(){ DayNumber = 18, Month = "Март", EthanolValue = 8.5f, EventCount =0, SugarValue = 71},
-            new DayIndicators(){ DayNumber = 19, Month = "Март", EthanolValue = 9.3f, EventCount =0, SugarValue = 60},
-            new DayIndicators(){ DayNumber = 20, Month = "Март", EthanolValue = 9.4f, EventCount =0, SugarValue = 50},
-            new DayIndicators(){ DayNumber = 21, Month = "Март", EthanolValue = 10.2f, EventCount =0, SugarValue = 55},
-            new DayIndicators(){ DayNumber = 22, Month = "Март", EthanolValue = 10.5f, EventCount =1, SugarValue = 54},
-            new DayIndicators(){ DayNumber = 23, Month = "Март", EthanolValue = 11.6f, EventCount =1, SugarValue = 53},
-            new DayIndicators(){ DayNumber = 24, Month = "Март", EthanolValue = 12.7f, EventCount =1, SugarValue = 21},
-            new DayIndicators(){ DayNumber = 25, Month = "Март", EthanolValue = 13.3f, EventCount =1, SugarValue = 22},
-            new DayIndicators(){ DayNumber = 26, Month = "Март", EthanolValue = 14.4f, EventCount =0, SugarValue = 23},
-        };
+            navManager.NavigateTo("/ProjectPage");
+            ShowErrorModal(EMPTY_LIST_DAYS_ERROR, "Ошибка при загрузке страницы");
+        }
+        return result.ToList();
+    }
+
+    /// <summary>
+    /// Обработчик события нажатия на конкретную карточку
+    /// </summary>
+    /// <param name="id"> id дня </param>
+    private void SelectCard(int id)
+    {
+        navManager.NavigateTo($"/TimeLineDayPage/{id}");
+    }
+
+    private void ShowErrorModal(string message, string title)
+    {
+        var errors = new List<string>() { message };
+        var param = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>(title, param);
     }
 }

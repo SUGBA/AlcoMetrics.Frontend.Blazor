@@ -1,4 +1,4 @@
-﻿@page "/TimeLineDayPage"
+﻿@page "/TimeLineDayPage/{DayId:int}"
 @using Client.Pages.TimeLineDayPage.Components
 @using Client.Pages.TimeLineDayPage.Models
 @using Client.Pages.TimeLineDayPage.Request
@@ -46,6 +46,12 @@
     /// Модалка
     /// </summary>
     [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    /// <summary>
+    /// Id выбранного дня
+    /// </summary>
+    [Parameter]
+    public int DayId { get; set; }
 
     /// <summary>
     /// Список показателей для карточки

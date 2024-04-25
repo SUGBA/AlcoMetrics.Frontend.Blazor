@@ -31,7 +31,6 @@
     <Folder Include="Pages\TimeLineDayPage\Request\" />
     <Folder Include="Pages\TimeLineDayPage\Response\" />
     <Folder Include="Pages\TimeLinePage\Request\" />
-    <Folder Include="Pages\TimeLinePage\Response\" />
     <Folder Include="wwwroot\css\" />
   </ItemGroup>
 

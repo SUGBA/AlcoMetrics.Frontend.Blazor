@@ -6,6 +6,7 @@ using Client.Auth.PasswordAuthentification.Abstract;
 using Client.Auth.Share;
 using Client.Configuration.ApiConfiguration;
 using Client.Pages.ProjectsPage.Services;
+using Client.Pages.TimeLinePage.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -42,6 +43,7 @@ namespace Client
             builder.Services.AddBlazoredModal();
 
             builder.Services.AddTransient<IProjectPageApiService, ProjectPageApiService>();
+            builder.Services.AddTransient<ITimeLineApiService, TimeLineApiService>();
 
             await builder.Build().RunAsync();
         }

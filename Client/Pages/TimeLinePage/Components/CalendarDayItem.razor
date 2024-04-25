@@ -1,12 +1,13 @@
-﻿@using Client.Pages.TimeLinePage.Request
-<a href="#" class="dayContainer">
+﻿@using Client.Pages.TimeLinePage.Response
+
+<a @onclick="(async ()=> await SelectCard(Indicator.DayId))" class="dayContainer">
     <div class="dayCard">
         <div class="box">
             <div class="content">
                 <h2>@Indicator.DayNumber</h2>
                 <h3>@Indicator.Month</h3>
                 <p>Спирт: @Indicator.EthanolValue %</p>
-                <p>Сахар: @Indicator.SugarValue %</p>
+                <p>Сахар: @Indicator.SugarValue г./Л.</p>
                 <p>Активных событий: @Indicator.EventCount</p>
             </div>
         </div>
@@ -19,4 +20,20 @@
     /// </summary>
     [EditorRequired, Parameter]
     public DayIndicators Indicator { get; set; } = new();
+
+    /// <summary>
+    /// Обработчик события выбора карточки дня
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> SelectCardEvent { get; set; }
+
+    /// <summary>
+    /// Нажатие на карточку дня
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    private async Task SelectCard(int id)
+    {
+        await SelectCardEvent.InvokeAsync(id);
+    }
 }
