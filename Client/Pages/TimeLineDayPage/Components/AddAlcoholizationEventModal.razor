@@ -1,0 +1,29 @@
+﻿@using Client.Pages.TimeLineDayPage.Request
+@using Client.SharedComponents.Forms
+
+<DefaultForm1 Header="Добавление события крепления" Model="Model" TModelType="AddAlcoholizationEvent" SubmitButton="OnSubmit">
+    <DataAnnotationsValidator />
+    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Желаемая крепость"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
+    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Крепость спирта"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.AlcoholValue)" />
+    <p><input type="submit" value="Создать"></p>
+</DefaultForm1>
+
+@code {
+    /// <summary>
+    /// Модель для добавления события крепления
+    /// </summary>
+    private AddAlcoholizationEvent Model { get; set; } = new();
+
+    /// <summary>
+    /// Обработчик события добавления события
+    /// </summary>
+    [Parameter]
+    public EventCallback<AddAlcoholizationEvent> SubmitForm { get; set; }
+
+    private async Task OnSubmit()
+    {
+        await SubmitForm.InvokeAsync(Model);
+    }
+}

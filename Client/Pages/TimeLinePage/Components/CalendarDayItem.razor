@@ -6,8 +6,8 @@
             <div class="content">
                 <h2>@Indicator.DayNumber</h2>
                 <h3>@Indicator.Month</h3>
-                <p>Спирт: @Indicator.EthanolValue %</p>
-                <p>Сахар: @Indicator.SugarValue г./Л.</p>
+                <p>Спирт: @Indicator.EthanolValue.ToString("F2") %</p>
+                <p>Сахар: @Indicator.SugarValue.ToString("F2") г./Л.</p>
                 <p>Активных событий: @Indicator.EventCount</p>
             </div>
         </div>

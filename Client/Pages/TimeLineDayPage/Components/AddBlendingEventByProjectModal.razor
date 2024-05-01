@@ -1,0 +1,49 @@
+﻿@using Client.Pages.TimeLineDayPage.Request
+@using Client.SharedComponents.Forms
+@using Client.SharedComponents.Selectors
+
+<DefaultForm1 Header="Добавление события крепления" Model="Model" TModelType="AddBlendingEventByProject" SubmitButton="OnSubmit">
+    <DataAnnotationsValidator />
+    <p><BaseSelector Options="ListProjects" SelectOptionEvent="SelectOption" TEnumType="int"></BaseSelector></p>
+    <ValidationMessage For="(()=>Model.SelectedProjectId)" />
+    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Желаемое содержание спирта"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
+    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Желаемое содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
+    <p><input type="submit" value="Создать"></p>
+
+</DefaultForm1>
+
+@code {
+    /// <summary>
+    /// Модель для добавления события крепления
+    /// </summary>
+    private AddBlendingEventByProject Model { get; set; } = new();
+
+
+    /// <summary>
+    /// Обработчик события добавления события
+    /// </summary>
+    [Parameter]
+    public EventCallback<AddBlendingEventByProject> SubmitForm { get; set; }
+
+    private async Task OnSubmit()
+    {
+        await SubmitForm.InvokeAsync(Model);
+    }
+
+    /// <summary>
+    /// Список проектов Имя -> id
+    /// </summary>
+    [EditorRequired, Parameter]
+    public Dictionary<string, int> ListProjects { get; set; } = new();
+
+    /// <summary>
+    /// Событие выбора проекта из селекта
+    /// </summary>
+    /// <param name="projectId"></param>
+    private void SelectOption(int projectId)
+    {
+        Model.SelectedProjectId = projectId;
+    }
+}

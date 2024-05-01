@@ -57,5 +57,29 @@
         public static string GetDaysPath = "TimeLine/GetDays";
 
         #endregion
+
+        #region TimeLineDay
+
+        /// <summary>
+        /// Точка получения показателей выбранного дня
+        /// </summary>
+        public static string GetDayIndicatorsPath = "TimeLineDay/GetIndicators";
+
+        /// <summary>
+        /// Точка получения событий выбранного дня
+        /// </summary>
+        public static string GetDayEventsPath = "TimeLineDay/GetEvents";
+
+        /// <summary>
+        /// Точка для актуализации показаний на основе всех параметров
+        /// </summary>
+        public static string UpdateByAllParamPath = "TimeLineDay/UpdateByAllParam";
+
+        /// <summary>
+        /// Точка для актуализации показаний на основе показаний ареометра
+        /// </summary>
+        public static string UpdateByAreometerPath = "TimeLineDay/UpdateByAreometer";
+
+        #endregion
     }
 }

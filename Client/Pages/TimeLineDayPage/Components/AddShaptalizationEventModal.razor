@@ -1,0 +1,27 @@
+﻿@using Client.Pages.TimeLineDayPage.Request
+@using Client.SharedComponents.Forms
+
+<DefaultForm1 Header="Добавление события крепления" Model="Model" TModelType="AddShaptalizationEvent" SubmitButton="OnSubmit">
+    <DataAnnotationsValidator />
+    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Желаемое содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
+    <p><input type="submit" value="Создать"></p>
+</DefaultForm1>
+
+@code {
+    /// <summary>
+    /// Модель для добавления события крепления
+    /// </summary>
+    private AddShaptalizationEvent Model { get; set; } = new();
+
+    /// <summary>
+    /// Обработчик события добавления события
+    /// </summary>
+    [Parameter]
+    public EventCallback<AddShaptalizationEvent> SubmitForm { get; set; }
+
+    private async Task OnSubmit()
+    {
+        await SubmitForm.InvokeAsync(Model);
+    }
+}

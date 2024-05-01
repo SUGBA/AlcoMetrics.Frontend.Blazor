@@ -2,12 +2,16 @@
 @using Client.Pages.TimeLineDayPage.Components
 @using Client.Pages.TimeLineDayPage.Models
 @using Client.Pages.TimeLineDayPage.Request
-@using Client.Pages.TimeLinePage.Request
+@using Client.Pages.TimeLineDayPage.Response
+@using Client.Pages.TimeLineDayPage.Services
+@using Client.Pages.TimeLinePage.Extensions
 @using Client.SharedComponents.Buttons
 @using Client.SharedComponents.Cards
 @using Client.SharedComponents.Modal
 @using Client.SharedComponents.Selectors
 @using Client.SharedComponents.Tables.Models
+@inject ITimeLineDayApiService timeLIneDayService
+@inject NavigationManager navManager
 @rendermode RenderMode.InteractiveWebAssembly
 
 
@@ -33,8 +37,9 @@
 
                 <div class="rightselecterContainer">
                     <div class="selectStartDataInputType">
-                        <BaseSelector Options="AddEventOptions" TEnumType="NewEventTypeEnum" SelectOptionEvent="SelectAddNewEventType" />
+                        <BaseSelector Options="AddEventOptions" TEnumType="NewEventTypeEnum" SelectOptionEvent="SelectAddEvent" />
                     </div>
+                    @AddEventForm
                 </div>
             </div>
         </div>
@@ -74,6 +79,11 @@
     public List<ButtonModel> Buttons { get; set; } = new();
 
     /// <summary>
+    /// Список проектов для форомчки добавления события купажировани с выбором проекта
+    /// </summary>
+    public Dictionary<string, int> Projects { get; set; } = new();
+
+    /// <summary>
     /// Значения селектора с выбором способа актуализации
     /// </summary>
     public Dictionary<string, UpdatingMethodEnum> ActualizationOptions { get; set; } = new();
@@ -88,9 +98,16 @@
     /// </summary>
     private RenderFragment UpdateIndicatorsForm = builder => { };
 
-    protected override void OnInitialized()
+    /// <summary>
+    /// Форма добавления события
+    /// </summary>
+    private RenderFragment AddEventForm = builder => { };
+
+    private const string EMPTY_INDICATORS_ERROR = "Ошибка в ходе получени яиндикаторов текущего дня.";
+
+    protected override async Task OnInitializedAsync()
     {
-        CardData = Map(GetCurrentIndicator());
+        CardData = await Map(await GetCurrentIndicator(DayId));
 
         Buttons = new List<ButtonModel>()
         {
@@ -100,35 +117,59 @@
 
         Headers = new List<string>() { "Событие", "Тип", "Завершенность" };
 
-        Data = Map(GetDays());
+        Data = Map(await GetEvents(DayId));
 
         ActualizationOptions.Add("Показания ареометра", UpdatingMethodEnum.AreometerValue);
         ActualizationOptions.Add("Ввод показателей", UpdatingMethodEnum.AllIndicators);
 
         AddEventOptions.Add("Шаптализация", NewEventTypeEnum.Shaptalization);
         AddEventOptions.Add("Крепление", NewEventTypeEnum.Alcoholization);
-        AddEventOptions.Add("Купажирование", NewEventTypeEnum.Blending);
+        AddEventOptions.Add("Купажирование на основе проекта", NewEventTypeEnum.BlendingByProject);
+        AddEventOptions.Add("Купажирование на основе показателей", NewEventTypeEnum.BlendingByAllParams);
+
+        Projects = await GetListProjects();
     }
 
-    private List<Row> Map(List<EventTotableInCurrentday> rows)
+    private List<Row> Map(List<CurrentDayEventsResponse> rows)
     {
         var result = new List<Row>(rows.Count);
         for (int i = 0; i < rows.Count; i++)
         {
-            result.Add(new Row() { Id = i, Cells = new List<string>() { rows[i].EventName, rows[i].Type, rows[i].IsReady } });
+            result.Add(new Row() { Id = i, Cells = new List<string>() { rows[i].EventName, rows[i].Type, rows[i].IsReady.ToDefaultStringFormat() } });
         }
         return result;
     }
 
-    private List<EventTotableInCurrentday> GetDays()
+    private async Task<List<CurrentDayEventsResponse>> GetEvents(int dayId)
     {
-        return new List<EventTotableInCurrentday>()
-        {
-            new EventTotableInCurrentday(){EventName = "Шаптализация", IsReady = "Завершено", Type="Системное"},
-            new EventTotableInCurrentday(){EventName = "Шаптализация", IsReady = "Не завершено", Type="Системное"},
-            new EventTotableInCurrentday(){EventName = "Купажирование", IsReady = "Не Завершено", Type="Пользовательское"},
-            new EventTotableInCurrentday(){EventName = "Крепление", IsReady = "Завершено", Type="Пользовательское"},
-        };
+        var result = await timeLIneDayService.GetEventsAsync(dayId);
+        return result.ToList();
+    }
+
+    /// <summary>
+    /// Отправляем запрос на актуализацию параметров путем ввода всех параметро
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private async Task UpdateIndicatorsByAllParamasAsync(UpdateIndicatorsByAllParam model)
+    {
+        model.DayId = DayId;
+        var errors = await timeLIneDayService.UpdateDayIndicatorsByAllParamsAsync(model);
+        if (!string.IsNullOrEmpty(errors))
+            ShowErrorModal(errors, "Ошибка в ходе актуализации парметров");
+    }
+
+    /// <summary>
+    /// Отправляем запрос на актуализацию параметров путем ввода показаний ареометра
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private async Task UpdateIndicatorsByAreometerAsync(UpdateIndicatorsByAllAreometer model)
+    {
+        model.DayId = DayId;
+        var errors = await timeLIneDayService.UpdateDayIndicatorsByAreometerAsync(model);
+        if (!string.IsNullOrEmpty(errors))
+            ShowErrorModal(errors, "Ошибка в ходе актуализации парметров");
     }
 
     /// <summary>
@@ -166,15 +207,15 @@
     /// </summary>
     /// <param name="currentIndicator"></param>
     /// <returns></returns>
-    private Dictionary<string, string> Map(CurrentDayIndicator currentIndicator)
+    private async Task<Dictionary<string, string>> Map(CurrentDayIndicatrosResponse currentIndicator)
     {
-        var indicator = GetCurrentIndicator();
+        var indicator = await GetCurrentIndicator(DayId);
         return new Dictionary<string, string>()
         {
             {"Текущая дата", $"{indicator.CurrentDateTime.ToString("dd.mm.yyyy")}"},
-            {"Содержание спирта", $"{indicator.EthanolValue.ToString()}%"},
-            {"Содержание сахара", $"{indicator.SuagrValue.ToString()} Г/Литр"},
-            {"Объем", $"{indicator.Wort.ToString()} Литров"},
+            {"Содержание спирта", $"{indicator.EthanolValue.ToString("F2")}%"},
+            {"Содержание сахара", $"{indicator.SugarValue.ToString("F2")} Г/Литр"},
+            {"Объем", $"{indicator.Wort.ToString("F2")} Литров"},
         };
     }
 
@@ -182,15 +223,15 @@
     /// Получение индикатора текущего дня
     /// </summary>
     /// <returns></returns>
-    private CurrentDayIndicator GetCurrentIndicator()
+    private async Task<CurrentDayIndicatrosResponse> GetCurrentIndicator(int dayId)
     {
-        return new CurrentDayIndicator()
-            {
-                CurrentDateTime = DateTime.Now,
-                EthanolValue = 13.5f,
-                SuagrValue = 45.3f,
-                Wort = 27
-            };
+        CurrentDayIndicatrosResponse result = await timeLIneDayService.GetCurrentDayIndicatorsAsync(dayId);
+        if (result == default(CurrentDayIndicatrosResponse))
+        {
+            navManager.NavigateTo($"/TimeLinePage/{dayId}");
+            ShowErrorModal(EMPTY_INDICATORS_ERROR, "Ошибка в ходе получения показателей текущего дня");
+        }
+        return result!;
     }
 
     /// <summary>
@@ -202,10 +243,10 @@
         switch (value)
         {
             case UpdatingMethodEnum.AllIndicators:
-                UpdateIndicatorsForm =@<UpdateIndicatorsByAllParams></UpdateIndicatorsByAllParams>;
+                UpdateIndicatorsForm =@<UpdateIndicatorsByAllParams OnSubmit="UpdateIndicatorsByAllParamasAsync"></UpdateIndicatorsByAllParams>;
                 break;
             case UpdatingMethodEnum.AreometerValue:
-                UpdateIndicatorsForm =@<UpdateIndicatorsByAreometer></UpdateIndicatorsByAreometer>;
+                UpdateIndicatorsForm = @<UpdateIndicatorsByAreometer OnSubmit="UpdateIndicatorsByAreometerAsync"></UpdateIndicatorsByAreometer>;
                 break;
             default:
                 break;
@@ -213,17 +254,56 @@
     }
 
     /// <summary>
-    /// Обработчик выбора типа добавляемого события
+    /// Обработчик события выбора элемента селекта
     /// </summary>
-    /// <param name="value"></param>
-    private void SelectAddNewEventType(NewEventTypeEnum value)
+    /// <param name="eventType"></param>
+    /// <returns></returns>
+    private void SelectAddEvent(NewEventTypeEnum eventType)
     {
-        var viewDict = new Dictionary<string, string>()
+        switch (eventType)
         {
-            {"Поле: ", $"{value.ToString()}" },
-            {"Кнопка: ", $"Выбрать тип добавляемого события" }
-        };
-        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
-        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+            case NewEventTypeEnum.Shaptalization:
+                AddEventForm = @<AddShaptalizationEventModal></AddShaptalizationEventModal>;
+                break;
+            case NewEventTypeEnum.Alcoholization:
+                AddEventForm = @<AddAlcoholizationEventModal></AddAlcoholizationEventModal>;
+                break;
+            case NewEventTypeEnum.BlendingByAllParams:
+                AddEventForm = @<AddBlendingEventByAllParamsModal></AddBlendingEventByAllParamsModal>;
+                break;
+            case NewEventTypeEnum.BlendingByProject:
+                AddEventForm = @<AddBlendingEventByProjectModal ListProjects="Projects"></AddBlendingEventByProjectModal>;
+                break;
+            default:
+                AddEventForm = builder => { };
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Получить список мероприятий конкретного пользователя
+    /// </summary>
+    /// <returns></returns>
+    private Task<Dictionary<string, int>> GetListProjects()
+    {
+        return Task.Run(() => new Dictionary<string, int>()
+        {
+            {"Проект #1", 1 },
+            {"Проект #2", 2 },
+            {"Проект #3", 3 },
+            {"Проект #4", 4 }
+        });
+    }
+
+    /// <summary>
+    /// Отобразить модалку со списком ошибок
+    /// </summary>
+    /// <param name="message"> Сообщения об ошибках </param>
+    /// <param name="title"> Заголовок </param>
+    private void ShowErrorModal(string message, string title)
+    {
+        var errors = new List<string>() { message };
+        var param = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>(title, param);
     }
 }

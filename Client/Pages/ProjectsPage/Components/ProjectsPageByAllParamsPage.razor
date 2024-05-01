@@ -1,7 +1,6 @@
 ﻿@using Client.Pages.ProjectsPage.Models.Request
 @using Client.Pages.ProjectsPage.Request
 @using Client.SharedComponents.Forms
-@using Client.SharedComponents.Modal
 @rendermode RenderMode.InteractiveWebAssembly
 
 <DefaultForm1 Header="Первичные данные" Model="Model" TModelType="CreateProjectModelByAllParams" SubmitButton="OnSubmit">
@@ -27,11 +26,6 @@
     /// Модель для создания по сорту винограда
     /// </summary>
     public CreateProjectModelByAllParams Model { get; set; } = new();
-
-    /// <summary>
-    /// Модалка
-    /// </summary>
-    [CascadingParameter] public IModalService Modal { get; set; } = default!;
 
     /// <summary>
     /// Обработчик нажатия кнопки отправить

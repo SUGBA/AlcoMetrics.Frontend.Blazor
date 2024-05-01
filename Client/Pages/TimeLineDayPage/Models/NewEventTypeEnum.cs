@@ -11,13 +11,18 @@
         Shaptalization = 1,
 
         /// <summary>
-        /// Купажирование
+        /// Купажирование на основе всех параметров
         /// </summary>
-        Blending = 2,
+        BlendingByAllParams = 2,
+
+        /// <summary>
+        /// Купажирование на основе выбора проекта
+        /// </summary>
+        BlendingByProject = 3,
 
         /// <summary>
         /// Крепление
         /// </summary>
-        Alcoholization = 3
+        Alcoholization = 4
     }
 }

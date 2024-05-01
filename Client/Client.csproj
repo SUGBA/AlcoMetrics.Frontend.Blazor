@@ -28,9 +28,6 @@
   <ItemGroup>
     <Folder Include="Auth\PasswordAuthentification\Models\" />
     <Folder Include="Pages\ProjectsPage\Models\Response\" />
-    <Folder Include="Pages\TimeLineDayPage\Request\" />
-    <Folder Include="Pages\TimeLineDayPage\Response\" />
-    <Folder Include="Pages\TimeLinePage\Request\" />
     <Folder Include="wwwroot\css\" />
   </ItemGroup>
 

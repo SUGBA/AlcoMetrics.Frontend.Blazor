@@ -6,6 +6,7 @@ using Client.Auth.PasswordAuthentification.Abstract;
 using Client.Auth.Share;
 using Client.Configuration.ApiConfiguration;
 using Client.Pages.ProjectsPage.Services;
+using Client.Pages.TimeLineDayPage.Services;
 using Client.Pages.TimeLinePage.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -44,6 +45,7 @@ namespace Client
 
             builder.Services.AddTransient<IProjectPageApiService, ProjectPageApiService>();
             builder.Services.AddTransient<ITimeLineApiService, TimeLineApiService>();
+            builder.Services.AddTransient<ITimeLineDayApiService, TimeLineDayApiService>();
 
             await builder.Build().RunAsync();
         }

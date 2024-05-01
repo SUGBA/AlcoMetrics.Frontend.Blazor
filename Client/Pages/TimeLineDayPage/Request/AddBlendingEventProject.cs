@@ -4,35 +4,31 @@ using System.Text.Json.Serialization;
 namespace Client.Pages.TimeLineDayPage.Request
 {
     /// <summary>
-    /// Обновление показателей путем ввода всех параметров
+    /// Модель добавления события купажирования путем выбора проекта
     /// </summary>
-    public class UpdateIndicatorsByAllParam
+    public class AddBlendingEventByProject
     {
         /// <summary>
-        /// Объем
+        /// Id выбранного проекта
         /// </summary>
+        [JsonPropertyName("SelectedProjectId")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
-        [Range(0, double.PositiveInfinity, ErrorMessage = "Недопустимый объем сусла")]
-        public double? Wort { get; set; }
+        public int SelectedProjectId { get; set; }
 
         /// <summary>
-        /// Процент алкоголя
+        /// Желаемое содержание алкоголя
         /// </summary>
+        [JsonPropertyName("DesiredAlcoholValue")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 100, ErrorMessage = "Недостижимое содержание спирта")]
-        public double? AlcoholPercentage { get; set; }
+        public float? DesiredAlcoholValue { get; set; } = null;
 
         /// <summary>
-        /// Содержание сахара
+        /// Желаемое содрежание сахара
         /// </summary>
+        [JsonPropertyName("DesiredSugarValue")]
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 1000, ErrorMessage = "Недостижимое содержание сахара")]
-        public double? SugarValue { get; set; }
-
-        /// <summary>
-        /// Id выбранного дня
-        /// </summary>
-        [JsonPropertyName("DayId")]
-        public int DayId { get; set; }
+        public float? DesiredSugarValue { get; set; } = null;
     }
 }
