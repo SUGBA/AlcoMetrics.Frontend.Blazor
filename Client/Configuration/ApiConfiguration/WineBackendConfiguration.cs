@@ -80,6 +80,41 @@
         /// </summary>
         public static string UpdateByAreometerPath = "TimeLineDay/UpdateByAreometer";
 
+        /// <summary>
+        /// Путь для добавления события крепления вина
+        /// </summary>
+        public static string AddAlcoholizationPath = "TimeLineDay/AddAlcoholizationEvent";
+
+        /// <summary>
+        /// Путь для добавления события шаптализации вина
+        /// </summary>
+        public static string AddShaptalizationEvent = "TimeLineDay/AddShaptalizationEvent";
+
+        /// <summary>
+        /// Путь для добавления события крепления по проекту
+        /// </summary>
+        public static string AddBlendingEventByProjectPath = "TimeLineDay/AddBlendingEventByProject";
+
+        /// <summary>
+        /// Путь для добавления события крепления по всем параметрам
+        /// </summary>
+        public static string AddBlendingEventByAllParamsPath = "TimeLineDay/AddBlendingEventByAllParams";
+
+        /// <summary>
+        /// Путь для получения списка проектов для купажирования
+        /// </summary>
+        public static string GetProjectsForBlendingPath = "TimeLineDay/GetProjects";
+
+        /// <summary>
+        /// Путь для подтверждения выполнения события
+        /// </summary>
+        public static string AcceptEventPath = "TimeLineDay/AcceptEvent";
+
+        /// <summary>
+        /// Путь для удаления события
+        /// </summary>
+        public static string RemoveEventPath = "TimeLineDay/RemoveEvent";
+
         #endregion
     }
 }

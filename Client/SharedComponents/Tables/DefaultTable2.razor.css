@@ -22,7 +22,7 @@
 
     .listProjectTable ::deep td,
     .listProjectTable ::deep th {
-        padding: 10px;
+        padding: 5px;
     }
 
     .listProjectTable ::deep th {

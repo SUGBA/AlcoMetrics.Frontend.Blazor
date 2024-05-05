@@ -47,9 +47,7 @@ namespace Client.Pages.TimeLineDayPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, model);
 
-            //var result = response.StatusCode == System.Net.HttpStatusCode.NoContent ? null : await response.Content.ReadAsStringAsync();
             return await response.Content.ReadAsStringAsync();
-            //return result;
         }
 
         public async Task<string?> UpdateDayIndicatorsByAreometerAsync(UpdateIndicatorsByAllAreometer model)
@@ -61,6 +59,99 @@ namespace Client.Pages.TimeLineDayPage.Services
             var response = await _httpClient.PostAsJsonAsync(path, model);
 
             return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<CurrentDayEventsResponse?> AddAlcoholizationEventAsync(AddAlcoholizationEvent request)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var addEventPath = WineBackendConfiguration.AddAlcoholizationPath;
+            var path = $"{domenPath}/{addEventPath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+        }
+
+        public async Task<CurrentDayEventsResponse?> AddBlendingEventByAllParamsAsync(AddBlendingEventByAllParams request)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var updatePath = WineBackendConfiguration.AddBlendingEventByAllParamsPath;
+            var path = $"{domenPath}/{updatePath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+        }
+
+        public async Task<CurrentDayEventsResponse?> AddBlendingEventByProjectAsync(AddBlendingEventByProject request)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var updatePath = WineBackendConfiguration.AddBlendingEventByProjectPath;
+            var path = $"{domenPath}/{updatePath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+        }
+
+        public async Task<CurrentDayEventsResponse?> AddShaptalizationEventAsync(AddShaptalizationEvent request)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var updatePath = WineBackendConfiguration.AddShaptalizationEvent;
+            var path = $"{domenPath}/{updatePath}";
+
+            var response = await _httpClient.PostAsJsonAsync(path, request);
+
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+        }
+
+        public async Task<List<GetProjectsResponse>> GetProjectsAsync(int currentProjectId)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var getProjectsPath = WineBackendConfiguration.GetProjectsForBlendingPath;
+            var path = $"{domenPath}/{getProjectsPath}/{currentProjectId}";
+
+            var response = await _httpClient.GetAsync(path);
+
+            var result = await response.Content.ReadFromJsonAsync<IEnumerable<GetProjectsResponse>>();
+            return result?.ToList() ?? new List<GetProjectsResponse>();
+        }
+
+        public async Task<bool> AcceptEventAsync(int eventId)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var acceptEventPath = WineBackendConfiguration.AcceptEventPath;
+            var path = $"{domenPath}/{acceptEventPath}/{eventId}";
+
+            var response = await _httpClient.PostAsync(path, null);
+
+            return await response.Content.ReadFromJsonAsync<bool>();
+        }
+
+        public async Task<bool> DeleteEventAsync(int eventId)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var removeEventPath = WineBackendConfiguration.RemoveEventPath;
+            var path = $"{domenPath}/{removeEventPath}/{eventId}";
+
+            var response = await _httpClient.PostAsync(path, null);
+
+            return await response.Content.ReadFromJsonAsync<bool>();
         }
     }
 }

@@ -24,10 +24,23 @@
         <tr>
             @{
                 var copyI = i;
+                var maxRowSpan = Data[i].Cells.Max(x => x.Count);
             }
             @for (int j = 0; j < Data[i].Cells.Count; j++)
             {
-                <td>@Data[i].Cells[j]</td>
+                <td>
+                @* Рассчитываем сколько строк должна занимать одна ячейка, чтобы общее колличество строк в одной строке, равнялось максимальному maxRowSpan *@
+                @* var currentRowSpan = (maxRowSpan - Data[i].Cells[j].Count + 1) / Data[i].Cells[j].Count; *@
+                <table>
+                        @for (int k = 0; k < Data[i].Cells[j].Count; k++)
+                        {
+                            <tr>
+                                @Data[i].Cells[j][k]
+                            </tr> 
+                        }
+                </table>
+                </td>
+                @* <td>@Data[i].Cells[j]</td> *@
             }
             @foreach (var item in Buttons)
             {
@@ -49,7 +62,7 @@
     /// Строки
     /// </summary>
     [Parameter]
-    public List<Row> Data { get; set; } = new();
+    public List<MultyRow> Data { get; set; } = new();
 
     /// <summary>
     /// Кнопки
@@ -67,6 +80,6 @@
     /// </summary>
     private void Sort()
     {
-        Data = Data.OrderByDescending(x => x.Cells[0].ToLower().StartsWith(SearchLine.ToLower())).ToList();
+        Data = Data.OrderByDescending(x => x.Cells[0][0].ToLower().StartsWith(SearchLine.ToLower())).ToList();
     }
 }

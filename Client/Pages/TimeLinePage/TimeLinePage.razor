@@ -65,7 +65,7 @@
     /// <param name="id"> id дня </param>
     private void SelectCard(int id)
     {
-        navManager.NavigateTo($"/TimeLineDayPage/{id}");
+        navManager.NavigateTo($"/TimeLineDayPage/{ProjectId}/{id}");
     }
 
     private void ShowErrorModal(string message, string title)

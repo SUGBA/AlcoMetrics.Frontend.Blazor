@@ -39,5 +39,11 @@ namespace Client.Pages.TimeLineDayPage.Request
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 1000, ErrorMessage = "Недостижимое содержание сахара")]
         public float? DesiredSugarValue { get; set; } = null;
+
+        /// <summary>
+        /// Id дня
+        /// </summary>
+        [JsonPropertyName("DayId")]
+        public int DayId { get; set; }
     }
 }

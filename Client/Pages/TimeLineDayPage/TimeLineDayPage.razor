@@ -1,4 +1,4 @@
-﻿@page "/TimeLineDayPage/{DayId:int}"
+﻿@page "/TimeLineDayPage/{ProjectId:int}/{DayId:int}"
 @using Client.Pages.TimeLineDayPage.Components
 @using Client.Pages.TimeLineDayPage.Models
 @using Client.Pages.TimeLineDayPage.Request
@@ -59,6 +59,12 @@
     public int DayId { get; set; }
 
     /// <summary>
+    /// Id выбранного дня
+    /// </summary>
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    /// <summary>
     /// Список показателей для карточки
     /// </summary>
     public Dictionary<string, string> CardData { get; set; } = new();
@@ -66,7 +72,7 @@
     /// <summary>
     /// Содержимое таблицы
     /// </summary>
-    public List<Row> Data { get; set; } = new();
+    public List<MultyRow> Data { get; set; } = new();
 
     /// <summary>
     /// Заголовки таблицы
@@ -111,11 +117,11 @@
 
         Buttons = new List<ButtonModel>()
         {
-            new ButtonModel(){Content = "Подтвердить", CLickButton = EventCallback.Factory.Create<int>(this, AcceptEvent)},
+            new ButtonModel(){Content = "Подтвердить", CLickButton = EventCallback.Factory.Create<int>(this, AcceptEventAsync)},
             new ButtonModel(){Content = "Удалить", CLickButton = EventCallback.Factory.Create<int>(this, DeleteEvent)}
         };
 
-        Headers = new List<string>() { "Событие", "Тип", "Завершенность" };
+        Headers = new List<string>() { "Событие", "Тип", "Завершенность", "Показатели", "Ингридиенты"};
 
         Data = Map(await GetEvents(DayId));
 
@@ -130,14 +136,18 @@
         Projects = await GetListProjects();
     }
 
-    private List<Row> Map(List<CurrentDayEventsResponse> rows)
+    private List<MultyRow> Map(List<CurrentDayEventsResponse> rows)
     {
-        var result = new List<Row>(rows.Count);
-        for (int i = 0; i < rows.Count; i++)
-        {
-            result.Add(new Row() { Id = i, Cells = new List<string>() { rows[i].EventName, rows[i].Type, rows[i].IsReady.ToDefaultStringFormat() } });
-        }
-        return result;
+        return rows.Select(x => new MultyRow()
+            {
+                Id = x.Id,
+                Cells = new List<List<string>>() {
+                new List<string>() { x.EventName },
+                new List<string>() { x.Type },
+                new List<string>(){ x.IsReady.ToDefaultStringFormat()},
+                new List<string>(){ x.Indicators.WortValue.ToString("F2"), x.Indicators.EthanolValue.ToString("F2"), x.Indicators.SuagrValue.ToString("F2") },
+                x.Ingridients}
+            }).ToList();
     }
 
     private async Task<List<CurrentDayEventsResponse>> GetEvents(int dayId)
@@ -156,7 +166,11 @@
         model.DayId = DayId;
         var errors = await timeLIneDayService.UpdateDayIndicatorsByAllParamsAsync(model);
         if (!string.IsNullOrEmpty(errors))
+        {
             ShowErrorModal(errors, "Ошибка в ходе актуализации парметров");
+            return;
+        }
+        CardData = await Map(await GetCurrentIndicator(DayId));
     }
 
     /// <summary>
@@ -169,37 +183,40 @@
         model.DayId = DayId;
         var errors = await timeLIneDayService.UpdateDayIndicatorsByAreometerAsync(model);
         if (!string.IsNullOrEmpty(errors))
+        {
             ShowErrorModal(errors, "Ошибка в ходе актуализации парметров");
+            return;
+        }
+        CardData = await Map(await GetCurrentIndicator(DayId));
     }
 
     /// <summary>
     /// Обработчик события подтверждения события
     /// </summary>
-    /// <param name="id"></param>
-    private void AcceptEvent(int id)
+    /// <param name="id"> Id события </param>
+    private async Task AcceptEventAsync(int id)
     {
-        var viewDict = new Dictionary<string, string>()
+        var result = await timeLIneDayService.AcceptEventAsync(id);
+        if (result)
         {
-            {"Поле: ", $"{id}" },
-            {"Кнопка: ", $"Подтвердить" }
-        };
-        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
-        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+            var removedRow = Data.First(x => x.Id == id);
+            Data.Remove(removedRow);
+            CardData = await Map(await GetCurrentIndicator(DayId));
+        }
     }
 
     /// <summary>
-    /// Обработчик события подтверждения события
+    /// Обработчик события удаления события
     /// </summary>
-    /// <param name="id"></param>
-    private void DeleteEvent(int id)
+    /// <param name="id"> Id события </param>
+    private async Task DeleteEvent(int id)
     {
-        var viewDict = new Dictionary<string, string>()
+        var result = await timeLIneDayService.DeleteEventAsync(id);
+        if (result)
         {
-            {"Поле: ", $"{id}" },
-            {"Кнопка: ", $"Удалить" }
-        };
-        var parameter = new ModalParameters().Add(nameof(BaseModal1<string>.Values), viewDict);
-        Modal.Show<BaseModal1<string>>("Some text from onSubmit", parameter);
+            var removedRow = Data.First(x => x.Id == id);
+            Data.Remove(removedRow);
+        }
     }
 
     /// <summary>
@@ -212,7 +229,7 @@
         var indicator = await GetCurrentIndicator(DayId);
         return new Dictionary<string, string>()
         {
-            {"Текущая дата", $"{indicator.CurrentDateTime.ToString("dd.mm.yyyy")}"},
+            {"Текущая дата", $"{indicator.CurrentDateTime.ToString("dd.MM.yyyy")}"},
             {"Содержание спирта", $"{indicator.EthanolValue.ToString("F2")}%"},
             {"Содержание сахара", $"{indicator.SugarValue.ToString("F2")} Г/Литр"},
             {"Объем", $"{indicator.Wort.ToString("F2")} Литров"},
@@ -232,6 +249,118 @@
             ShowErrorModal(EMPTY_INDICATORS_ERROR, "Ошибка в ходе получения показателей текущего дня");
         }
         return result!;
+    }
+
+    /// <summary>
+    /// Обработчик нажатия кнопки добавления крепления вина
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private async Task AddAlcoholizationEventAsync(AddAlcoholizationEvent model)
+    {
+        model.DayId = DayId;
+        var result = await timeLIneDayService.AddAlcoholizationEventAsync(model);
+        if (result == null)
+        {
+            ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
+            return;
+        }
+        Data.Add(new MultyRow()
+            {
+                Id = result.Id,
+                Cells = new List<List<string>>() {
+                    new List<string> { result!.EventName },
+                    new List<string> { result.Type },
+                    new List<string> { result.IsReady.ToDefaultStringFormat() },
+                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
+                    result.Ingridients
+                }
+            });
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Обработчик нажатия кнопки добавления шаптализации вина
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private async Task AddShaptalizationEventAsync(AddShaptalizationEvent model)
+    {
+        model.DayId = DayId;
+        var result = await timeLIneDayService.AddShaptalizationEventAsync(model);
+        if (result == null)
+        {
+            ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
+            return;
+        }
+        Data.Add(new MultyRow()
+            {
+                Id = result.Id,
+                Cells = new List<List<string>>() {
+                    new List<string> { result!.EventName },
+                    new List<string> { result.Type },
+                    new List<string> { result.IsReady.ToDefaultStringFormat() },
+                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
+                    result.Ingridients
+                }
+            });
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Обработчик нажатия кнопки добавления купажирования по проекту
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private async Task AddBlendingEventByProjectAsync(AddBlendingEventByProject model)
+    {
+        model.DayId = DayId;
+        var result = await timeLIneDayService.AddBlendingEventByProjectAsync(model);
+        if (result == null)
+        {
+            ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
+            return;
+        }
+        Data.Add(new MultyRow()
+            {
+                Id = result.Id,
+                Cells = new List<List<string>>() {
+                    new List<string> { result!.EventName },
+                    new List<string> { result.Type },
+                    new List<string> { result.IsReady.ToDefaultStringFormat() },
+                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
+                    result.Ingridients
+                }
+            });
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Обработчик нажатия кнопки добавления купажирования по всем параметрам
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    private async Task AddBlendingEventByAllParamsAsync(AddBlendingEventByAllParams model)
+    {
+        model.DayId = DayId;
+        var result = await timeLIneDayService.AddBlendingEventByAllParamsAsync(model);
+        if (result == null)
+        {
+            ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
+            return;
+        }
+        Data.Add(new MultyRow()
+            {
+                Id = result.Id,
+                Cells = new List<List<string>>() {
+                    new List<string> { result!.EventName },
+                    new List<string> { result.Type },
+                    new List<string> { result.IsReady.ToDefaultStringFormat() },
+                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
+                    result.Ingridients
+                }
+            });
+        StateHasChanged();
     }
 
     /// <summary>
@@ -263,16 +392,16 @@
         switch (eventType)
         {
             case NewEventTypeEnum.Shaptalization:
-                AddEventForm = @<AddShaptalizationEventModal></AddShaptalizationEventModal>;
+                AddEventForm = @<AddShaptalizationEventModal SubmitForm="AddShaptalizationEventAsync"></AddShaptalizationEventModal>;
                 break;
             case NewEventTypeEnum.Alcoholization:
-                AddEventForm = @<AddAlcoholizationEventModal></AddAlcoholizationEventModal>;
+                AddEventForm = @<AddAlcoholizationEventModal SubmitForm="AddAlcoholizationEventAsync"></AddAlcoholizationEventModal>;
                 break;
             case NewEventTypeEnum.BlendingByAllParams:
-                AddEventForm = @<AddBlendingEventByAllParamsModal></AddBlendingEventByAllParamsModal>;
+                AddEventForm = @<AddBlendingEventByAllParamsModal SubmitForm="AddBlendingEventByAllParamsAsync"></AddBlendingEventByAllParamsModal>;
                 break;
             case NewEventTypeEnum.BlendingByProject:
-                AddEventForm = @<AddBlendingEventByProjectModal ListProjects="Projects"></AddBlendingEventByProjectModal>;
+                AddEventForm = @<AddBlendingEventByProjectModal SubmitForm="AddBlendingEventByProjectAsync" ListProjects="Projects"></AddBlendingEventByProjectModal>;
                 break;
             default:
                 AddEventForm = builder => { };
@@ -284,15 +413,15 @@
     /// Получить список мероприятий конкретного пользователя
     /// </summary>
     /// <returns></returns>
-    private Task<Dictionary<string, int>> GetListProjects()
+    private async Task<Dictionary<string, int>> GetListProjects()
     {
-        return Task.Run(() => new Dictionary<string, int>()
+        var result = await timeLIneDayService.GetProjectsAsync(ProjectId);
+        if (result == null || result.Count() == 0)
         {
-            {"Проект #1", 1 },
-            {"Проект #2", 2 },
-            {"Проект #3", 3 },
-            {"Проект #4", 4 }
-        });
+            ShowErrorModal("Не удалось получить список проектов, убедитесь, что существуют другие проекты.", "Ошибка при создании мероприятия");
+            return new Dictionary<string, int>();
+        }
+        return result.ToDictionary(x => x.ProjectName, x => x.ProjectId);
     }
 
     /// <summary>

@@ -36,5 +36,54 @@ namespace Client.Pages.TimeLineDayPage.Services
         /// <param name="model"> Модель с показаниями ареометра и id дня </param>
         /// <returns> Сообщений с ошибкой или Null </returns>
         Task<string?> UpdateDayIndicatorsByAreometerAsync(UpdateIndicatorsByAllAreometer model);
+
+        /// <summary>
+        /// Добавить событие крепления вина
+        /// </summary>
+        /// <param name="request"> Модель с желаемыми показателями и крепостью спирта </param>
+        /// <returns></returns>
+        Task<CurrentDayEventsResponse?> AddAlcoholizationEventAsync(AddAlcoholizationEvent request);
+
+        /// <summary>
+        /// Добавить событие шаптализации
+        /// </summary>
+        /// <param name="request"> Модель с желаемыми показателями </param>
+        /// <returns></returns>
+        Task<CurrentDayEventsResponse?> AddShaptalizationEventAsync(AddShaptalizationEvent request);
+
+        /// <summary>
+        /// Добавить событие купажирования, по заданным параметрам
+        /// </summary>
+        /// <param name="request"> данные о купаже и желаемых показателях </param>
+        /// <returns></returns>
+        Task<CurrentDayEventsResponse?> AddBlendingEventByAllParamsAsync(AddBlendingEventByAllParams request);
+
+        /// <summary>
+        /// Добавить событие купажирования, по выбранному проекту
+        /// </summary>
+        /// <param name="request"> данные о купаже и желаемых показателях </param>
+        /// <returns></returns>
+        Task<CurrentDayEventsResponse?> AddBlendingEventByProjectAsync(AddBlendingEventByProject request);
+
+        /// <summary>
+        /// Получить список проектов пользователя
+        /// </summary>
+        /// <param name="currentProjectId"> id текущего проекта </param>
+        /// <returns></returns>
+        Task<List<GetProjectsResponse>> GetProjectsAsync(int currentProjectId);
+
+        /// <summary>
+        /// Подтвердить мероприятие
+        /// </summary>
+        /// <param name="eventId"> Id мероприятия </param>
+        /// <returns></returns>
+        Task<bool> AcceptEventAsync(int eventId);
+
+        /// <summary>
+        /// Удалить мероприятие
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
+        Task<bool> DeleteEventAsync(int eventId);
     }
 }

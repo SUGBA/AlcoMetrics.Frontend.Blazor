@@ -23,5 +23,11 @@ namespace Client.Pages.TimeLineDayPage.Request
         [Required(ErrorMessage = "Поле обязательно к заполнению")]
         [Range(0, 100, ErrorMessage = "Недостижимое содержание спирта")]
         public float? AlcoholValue { get; set; }
+
+        /// <summary>
+        /// Id дня
+        /// </summary>
+        [JsonPropertyName("DayId")]
+        public int DayId { get; set; }
     }
 }
