@@ -41,6 +41,6 @@ namespace Client.Pages.TimeLineDayPage.Response
         /// Показатели которые будут после принятия мероприятия
         /// </summary>
         [JsonPropertyName("Indicators")]
-        public ResultEventIndicatorsResponse Indicators { get; set; } = new();
+        public List<string> Indicators { get; set; } = new();
     }
 }

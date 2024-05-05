@@ -8,6 +8,7 @@
 @using Client.SharedComponents.Buttons
 @using Client.SharedComponents.Cards
 @using Client.SharedComponents.Modal
+@using Client.SharedComponents.Modal.Models
 @using Client.SharedComponents.Selectors
 @using Client.SharedComponents.Tables.Models
 @inject ITimeLineDayApiService timeLIneDayService
@@ -72,7 +73,13 @@
     /// <summary>
     /// Содержимое таблицы
     /// </summary>
-    public List<MultyRow> Data { get; set; } = new();
+    public List<Row> Data { get; set; } = new();
+
+    /// <summary>
+    /// Данные полученные из Api
+    /// Хранится отдельным полем, поскольку, часть отображается в таблице, часть в модалках
+    /// </summary>
+    public List<CurrentDayEventsResponse> DataFromApi { get; set; } = new();
 
     /// <summary>
     /// Заголовки таблицы
@@ -118,12 +125,14 @@
         Buttons = new List<ButtonModel>()
         {
             new ButtonModel(){Content = "Подтвердить", CLickButton = EventCallback.Factory.Create<int>(this, AcceptEventAsync)},
-            new ButtonModel(){Content = "Удалить", CLickButton = EventCallback.Factory.Create<int>(this, DeleteEvent)}
+            new ButtonModel(){Content = "Удалить", CLickButton = EventCallback.Factory.Create<int>(this, DeleteEvent)},
+            new ButtonModel(){Content = "Подробнее", CLickButton = EventCallback.Factory.Create<int>(this, ShowEventInfoModal)}
         };
 
-        Headers = new List<string>() { "Событие", "Тип", "Завершенность", "Показатели", "Ингридиенты"};
+        Headers = new List<string>() { "Событие", "Тип", "Завершенность" };
 
-        Data = Map(await GetEvents(DayId));
+        DataFromApi = await GetEvents(DayId);
+        Data = Map(DataFromApi);
 
         ActualizationOptions.Add("Показания ареометра", UpdatingMethodEnum.AreometerValue);
         ActualizationOptions.Add("Ввод показателей", UpdatingMethodEnum.AllIndicators);
@@ -136,17 +145,15 @@
         Projects = await GetListProjects();
     }
 
-    private List<MultyRow> Map(List<CurrentDayEventsResponse> rows)
+    private List<Row> Map(List<CurrentDayEventsResponse> rows)
     {
-        return rows.Select(x => new MultyRow()
+        return rows.Select(x => new Row()
             {
                 Id = x.Id,
-                Cells = new List<List<string>>() {
-                new List<string>() { x.EventName },
-                new List<string>() { x.Type },
-                new List<string>(){ x.IsReady.ToDefaultStringFormat()},
-                new List<string>(){ x.Indicators.WortValue.ToString("F2"), x.Indicators.EthanolValue.ToString("F2"), x.Indicators.SuagrValue.ToString("F2") },
-                x.Ingridients}
+                Cells = new List<string>() {
+                x.EventName ,
+                x.Type ,
+                x.IsReady.ToDefaultStringFormat()}
             }).ToList();
     }
 
@@ -201,6 +208,7 @@
         {
             var removedRow = Data.First(x => x.Id == id);
             Data.Remove(removedRow);
+            DataFromApi.RemoveAll(x => x.Id == id);
             CardData = await Map(await GetCurrentIndicator(DayId));
         }
     }
@@ -215,6 +223,7 @@
         if (result)
         {
             var removedRow = Data.First(x => x.Id == id);
+            DataFromApi.RemoveAll(x => x.Id == id);
             Data.Remove(removedRow);
         }
     }
@@ -265,17 +274,16 @@
             ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
             return;
         }
-        Data.Add(new MultyRow()
+        Data.Add(new Row()
             {
                 Id = result.Id,
-                Cells = new List<List<string>>() {
-                    new List<string> { result!.EventName },
-                    new List<string> { result.Type },
-                    new List<string> { result.IsReady.ToDefaultStringFormat() },
-                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
-                    result.Ingridients
-                }
+                Cells = new List<string>() {
+                result.EventName ,
+                result.Type ,
+                result.IsReady.ToDefaultStringFormat()}
             });
+        DataFromApi.Add(result);
+
         StateHasChanged();
     }
 
@@ -293,17 +301,16 @@
             ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
             return;
         }
-        Data.Add(new MultyRow()
+        Data.Add(new Row()
             {
                 Id = result.Id,
-                Cells = new List<List<string>>() {
-                    new List<string> { result!.EventName },
-                    new List<string> { result.Type },
-                    new List<string> { result.IsReady.ToDefaultStringFormat() },
-                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
-                    result.Ingridients
-                }
+                Cells = new List<string>() {
+                result.EventName ,
+                result.Type ,
+                result.IsReady.ToDefaultStringFormat()}
             });
+        DataFromApi.Add(result);
+
         StateHasChanged();
     }
 
@@ -321,17 +328,16 @@
             ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
             return;
         }
-        Data.Add(new MultyRow()
+        Data.Add(new Row()
             {
                 Id = result.Id,
-                Cells = new List<List<string>>() {
-                    new List<string> { result!.EventName },
-                    new List<string> { result.Type },
-                    new List<string> { result.IsReady.ToDefaultStringFormat() },
-                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
-                    result.Ingridients
-                }
+                Cells = new List<string>() {
+                result.EventName ,
+                result.Type ,
+                result.IsReady.ToDefaultStringFormat()}
             });
+        DataFromApi.Add(result);
+
         StateHasChanged();
     }
 
@@ -349,18 +355,35 @@
             ShowErrorModal("Не удалось добавить мероприяте с заданными параметрами.", "Ошибка при создании мероприятия");
             return;
         }
-        Data.Add(new MultyRow()
+        Data.Add(new Row()
             {
                 Id = result.Id,
-                Cells = new List<List<string>>() {
-                    new List<string> { result!.EventName },
-                    new List<string> { result.Type },
-                    new List<string> { result.IsReady.ToDefaultStringFormat() },
-                    new List<string>(){result.Indicators.WortValue.ToString("F2"), result.Indicators.EthanolValue.ToString("F2"), result.Indicators.SuagrValue.ToString("F2") },
-                    result.Ingridients
-                }
+                Cells = new List<string>() {
+                result.EventName ,
+                result.Type ,
+                result.IsReady.ToDefaultStringFormat()}
             });
+        DataFromApi.Add(result);
+
         StateHasChanged();
+    }
+
+    /// <summary>
+    /// Отобразить модалку отображние ингридиентов или конечных показателей для мероприятия
+    /// </summary>
+    /// <param name="message"> Сообщение </param>
+    /// <param name="title"> Заголовок </param>
+    /// <returns></returns>
+    private void ShowEventInfoModal(int rowId)
+    {
+        var currentEvent = DataFromApi.FirstOrDefault(x => x.Id == rowId) ?? new();
+        var modalData = new List<InfoModalData>()
+        {
+            new InfoModalData(){Header = "Конечные показатели", Data = currentEvent.Indicators.ToArray()},
+            new InfoModalData(){Header = "Ингридиенты", Data = currentEvent.Ingridients.ToArray()}
+        };
+        var modalParams = new ModalParameters().Add(nameof(InfoModal.Data), modalData);
+        var messageForm = Modal.Show<InfoModal>("Информация о событии", modalParams);
     }
 
     /// <summary>

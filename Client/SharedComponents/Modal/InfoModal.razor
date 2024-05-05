@@ -1,0 +1,22 @@
+﻿@using Client.SharedComponents.Buttons
+@using Client.SharedComponents.Modal.Models
+
+@foreach (var block in Data)
+{
+    <h2>@block.Header</h2>
+    <ul class="listItems">
+        @foreach (var item in block.Data)
+        {
+            <li><h3 style="display: inline;">@item</h3></li>
+        }
+    </ul>
+
+}
+
+@code {
+    /// <summary>
+    /// Отображаемые данные
+    /// </summary>
+    [Parameter]
+    public IEnumerable<InfoModalData> Data { get; set; } = Enumerable.Empty<InfoModalData>();
+}

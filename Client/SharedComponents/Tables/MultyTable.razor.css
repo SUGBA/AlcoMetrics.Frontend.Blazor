@@ -1,0 +1,117 @@
+﻿.listProjectTable {
+    border-collapse: collapse;
+    border-left: 3px solid #ff7979;
+    border-right: 3px solid #ff7979;
+    border-bottom: 3px solid #ff7979;
+    font-family: "Lucida Grande", sans-serif;
+}
+
+    .listProjectTable ::deep caption {
+        background: #ff7979;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .3);
+        color: white;
+        font-family: "Roboto Slab", serif;
+        font-style: normal;
+        font-size: 26px;
+        text-align: center;
+        margin: 0;
+    }
+
+    .listProjectTable ::deep td,
+    .listProjectTable ::deep th {
+        padding: 5px;
+    }
+
+    .listProjectTable ::deep th {
+        text-align: left;
+        font-size: 18px;
+    }
+
+    .listProjectTable ::deep input {
+        border: none;
+        outline: none;
+        font-size: 18px;
+        color: gray;
+    }
+
+
+        .listProjectTable ::deep input[type=submit] {
+            color: black;
+            display: inline-block;
+            padding: 5px 10px;
+            background: #ff7979;
+            box-shadow: 2px 2px 0 0 #c50c0c;
+            position: relative;
+        }
+
+            .listProjectTable ::deep input[type=submit]:hover {
+                box-shadow: none;
+                top: 2px;
+                left: 2px;
+                color: white;
+            }
+
+    .listProjectTable ::deep td:last-of-type {
+        text-align: center;
+    }
+
+    .listProjectTable ::deep a {
+        display: inline-block;
+        padding: 5px 10px;
+        background: #ff7979;
+        box-shadow: 2px 2px 0 0 #c50c0c;
+        position: relative;
+    }
+
+        .listProjectTable ::deep a:hover {
+            box-shadow: none;
+            top: 2px;
+            left: 2px;
+            color: white;
+        }
+
+.searchForm {
+    position: relative;
+    width: 300px;
+}
+
+.searchDiv input,
+.searchDiv button {
+    border: none;
+    outline: none;
+    border-radius: 3px;
+}
+
+.searchDiv input {
+    width: 100%;
+    height: 42px;
+    background: #F9F0DA;
+    padding-left: 15px;
+}
+
+.searchDiv button {
+    height: 26px;
+    width: 26px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff7979;
+    cursor: pointer;
+}
+
+    .searchDiv button:before {
+        content: "▶";
+        font-family: FontAwesome;
+        color: black;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+.searchForm button:hover {
+    height: 28px;
+    width: 28px;
+    transition: 0.1s;
+}
