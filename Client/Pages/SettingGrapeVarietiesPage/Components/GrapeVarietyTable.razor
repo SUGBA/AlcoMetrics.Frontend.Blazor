@@ -1,0 +1,168 @@
+﻿@using Client.Pages.SettingGrapeVarietiesPage.Models
+@using Client.SharedComponents.Buttons
+
+@inherits ComponentBase
+@rendermode RenderMode.InteractiveWebAssembly
+
+@* Компонент таблицы с редактированием первого элементов первого столбца и удалением строк *@
+<table class="listProjectTable">
+    <caption>
+        <div class="searchDiv">
+            <div class="searchForm">
+                <input @bind-value="@SearchLine" type="text" placeholder="Искать здесь...">
+                <button @onclick="Sort" type="submit"></button>
+            </div>
+            <BaseButton1 Content="Добавить"></BaseButton1>
+        </div>
+    </caption>
+    <tr>
+        @foreach (var item in Headers)
+        {
+            <th>@item</th>
+        }
+        <th colspan="3">Редактирование</th>
+    </tr>
+    @for (var i = 0; i < Data.Count; i++)
+    {
+        var copyI = i;
+        <tr>
+            @if (Edits[Data[copyI].Id])
+            {
+                <td><input placeholder="@Data[copyI].GrapeVarietyName" @bind-value="UpdatedRows[Data[copyI].Id].GrapeVarietyName" /></td>
+                <td><input placeholder="@Data[copyI].SugarValue" @bind-value="UpdatedRows[Data[copyI].Id].SugarValue" /></td>
+                <td><input placeholder="@Data[copyI].AcidValue" @bind-value="UpdatedRows[Data[copyI].Id].AcidValue" /></td>
+                <td><a class="noselect" type="submit" @onclick="(async ()=> await AcceptButton(Data[copyI].Id))">Подтвердить</a></td>
+                <td><a class="noselect" @onclick="(()=>ChangeRow(Data[copyI].Id))">Отменить</a></td>
+            }
+            else
+            {
+                <td>@Data[copyI].GrapeVarietyName</td>
+                <td>@Data[copyI].SugarValue</td>
+                <td>@Data[copyI].AcidValue</td>
+                <td><a class="noselect" @onclick="(()=>ChangeRow(Data[copyI].Id))">Изменить</a></td>
+            }
+            <td><a class="noselect" @onclick="(async ()=> await DeletedRow(Data[copyI]))">Удалить</a></td>
+        </tr>
+    }
+</table>
+
+
+@code {
+    /// <summary>
+    /// Заголовки
+    /// </summary>
+    private List<string> Headers { get; set; } = new();
+
+    /// <summary>
+    /// Строки
+    /// </summary>
+    [EditorRequired, Parameter]
+    public List<GrapeVarietyResponse> Data { get; set; } = new();
+
+    /// <summary>
+    /// Событие изменения кнопки
+    /// </summary>
+    [EditorRequired, Parameter]
+    public EventCallback<GrapeVarietyResponse> EditButtonEvent { get; set; }
+
+    /// <summary>
+    /// Событий удаления кнопки
+    /// </summary>
+    [EditorRequired, Parameter]
+    public EventCallback<GrapeVarietyResponse> DeleteButtonEvent { get; set; }
+
+    /// <summary>
+    /// Обработчик события ноажатия кнопки добавления
+    /// </summary>
+    [EditorRequired, Parameter]
+    public EventCallback AddButtonEvent { get; set; }
+
+    /// <summary>
+    /// Список флагов изменяемых строк
+    /// </summary>
+    private Dictionary<int, bool> Edits { get; set; } = new();
+
+    /// <summary>
+    /// Список значений изменяемых строк
+    /// </summary>
+    private Dictionary<int, GrapeVarietyResponse> UpdatedRows = new();
+
+    /// <summary>
+    /// Строка поиска
+    /// </summary>
+    public string SearchLine { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Обработчик события поиска строки
+    /// </summary>
+    private void Sort()
+    {
+        Data = Data.OrderByDescending(x => x.GrapeVarietyName.ToLower().StartsWith(SearchLine.ToLower())).ToList();
+
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        Headers = new List<string>() { "Наименование", "Содержание сахара г/100см^3", "Кислотность г/дм^3" };
+    }
+
+    protected override void OnParametersSet()
+    {
+        Edits = Data.ToDictionary(k => k.Id, v => default(Boolean));
+        UpdatedRows = Data.ToDictionary(k => k.Id, v => v);
+    }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<List<GrapeVarietyResponse>>(nameof(Data), out var value))
+        {
+            Data = value;
+            Edits = value.ToDictionary(k => k.Id, v => default(Boolean));
+            UpdatedRows = Data.ToDictionary(k => k.Id, v => v);
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
+
+    /// <summary>
+    /// Обработчик удаления записи
+    /// </summary>
+    /// <param name="model"> Строка </param>
+    /// <returns></returns>
+    private async Task DeletedRow(GrapeVarietyResponse model)
+    {
+        await DeleteButtonEvent.InvokeAsync(model);
+    }
+
+    /// <summary>
+    /// Обработчик нажатия кнопки добавления нового сорта винограда
+    /// </summary>
+    /// <returns></returns>
+    private async Task AddGrapeVariety()
+    {
+        await AddButtonEvent.InvokeAsync();
+    }
+
+    /// <summary>
+    /// Сменить флаг изменения на противоположный
+    /// Добавить запись об изменении
+    /// </summary>
+    /// <param name="id"> id Записи </param>
+    private void ChangeRow(int id)
+    {
+        Edits[id] = !Edits[id];
+    }
+
+    /// <summary>
+    /// Событие нажатия кнопки подтверждения
+    /// </summary>
+    private async Task AcceptButton(int id)
+    {
+        if (UpdatedRows[id].AcidValue != 0 && UpdatedRows[id].SugarValue != 0 && !string.IsNullOrEmpty(UpdatedRows[id].GrapeVarietyName))
+        {
+            var updatedItem = UpdatedRows[id];
+            await EditButtonEvent.InvokeAsync(updatedItem);
+        }
+    }
+}

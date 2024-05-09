@@ -7,9 +7,9 @@
 <AuthorizeView Roles="WineMaker">
     <body>
         <div class="navigationBar">
-            <a href="#" class="underline-one">Калькулятор</a>
+            @* <a href="#" class="underline-one">Калькулятор</a> *@
             <a class="underline-one" @onclick="(()=>ToProjectsPage())">Проекты</a>
-            <a href="#" class="underline-one">Личный кабинет</a>
+            @* <a href="#" class="underline-one">Личный кабинет</a> *@
             <a class="underline-one" @onclick="(async ()=>await Logout())">Выйти</a>
         </div>
 

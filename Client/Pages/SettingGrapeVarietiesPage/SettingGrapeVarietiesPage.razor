@@ -1,0 +1,85 @@
+﻿@page "/GrapeVarietySettings"
+@using Client.Pages.SettingGrapeVarietiesPage.Components
+@using Client.Pages.SettingGrapeVarietiesPage.Models
+
+<div class="contentRowsContainer">
+    <div class="listProjects">
+        @if (ProjectData != null)
+        {
+            <GrapeVarietyTable Data="ProjectData" DeleteButtonEvent="DeleteGrapeVariety" EditButtonEvent="UpdateGrapeVariety" AddButtonEvent="ShowAddGrapeVarietyForm"/>
+        }
+        @AddGrapeVarietyForm
+    </div>
+</div>
+@code {
+    /// <summary>
+    /// Список проектов
+    /// </summary>
+    public List<GrapeVarietyResponse> ProjectData { get; set; } = new ();
+
+    /// <summary>
+    /// Заголовки таблицы с проектами
+    /// </summary>
+    private List<string> TableHeaders = new();
+
+    /// <summary>
+    /// Форма для добавления сорта винограда
+    /// </summary>
+    private RenderFragment AddGrapeVarietyForm = builder => { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectData = await GetGapeVarietiesAsync();
+    }
+
+    private Task DeleteGrapeVariety(GrapeVarietyResponse model)
+    {
+        return Task.Run(() =>
+        {
+            ProjectData.Remove(model);
+            StateHasChanged();
+        });
+    }
+
+    private Task UpdateGrapeVariety(GrapeVarietyResponse model)
+    {
+        return Task.Run(() =>
+        {
+            var existItem = ProjectData.First(x => x.Id == model.Id);
+            existItem = model;
+            StateHasChanged();
+        });
+    }
+
+    private Task AddGrapeVariety(GrapeVarietyResponse model)
+    {
+        return Task.Run(() =>
+        {
+            ProjectData.Add(model);
+            StateHasChanged();
+        });
+    }
+
+    private Task<List<GrapeVarietyResponse>> GetGapeVarietiesAsync()
+    {
+        return Task.Run(() => new List<GrapeVarietyResponse>()
+        {
+            new GrapeVarietyResponse(){Id = 1, AcidValue = 30, GrapeVarietyName = "Grape 1", SugarValue = 85 },
+            new GrapeVarietyResponse(){Id = 2, AcidValue = 31, GrapeVarietyName = "Grape 2", SugarValue = 75 },
+            new GrapeVarietyResponse(){Id = 3, AcidValue = 32, GrapeVarietyName = "Grape 3", SugarValue = 66 },
+            new GrapeVarietyResponse(){Id = 4, AcidValue = 33, GrapeVarietyName = "Grape 4", SugarValue = 88 },
+            new GrapeVarietyResponse(){Id = 5, AcidValue = 34, GrapeVarietyName = "Grape 5", SugarValue = 75 },
+            new GrapeVarietyResponse(){Id = 6, AcidValue = 35, GrapeVarietyName = "Grape 6", SugarValue = 84 },
+            new GrapeVarietyResponse(){Id = 7, AcidValue = 36, GrapeVarietyName = "Grape 7", SugarValue = 76 },
+        });
+    }
+
+    /// <summary>
+    /// Обработчик кнопки добавления нового сорта винограда
+    /// Отображает формочку с добавлением сорта винограда
+    /// </summary>
+    private void ShowAddGrapeVarietyForm()
+    {
+        AddGrapeVarietyForm = @<basefo></basefo>
+    }
+}

@@ -1,0 +1,12 @@
+﻿.contentRowsContainer {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+    gap: 10px;
+}
+
+@media(max-width: 767px) {
+    .selectStartDataInputType {
+        width: 70%;
+    }
+}

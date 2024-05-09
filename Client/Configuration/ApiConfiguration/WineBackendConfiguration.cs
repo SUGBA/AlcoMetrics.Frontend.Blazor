@@ -116,5 +116,24 @@
         public static string RemoveEventPath = "TimeLineDay/RemoveEvent";
 
         #endregion
+
+        #region GrapeVarieties
+
+        /// <summary>
+        /// Точка получения списка сортов винограда для администратора
+        /// </summary>
+        public static string GetAdminGrapeVarietiesPath = "GrapeVariety/GetGrapeVarieties";
+
+        /// <summary>
+        /// Точка редактирования сорта винограда
+        /// </summary>
+        public static string UpdateAdminGrapeVarietiesPath = "GrapeVariety/GetGrapeVarieties";
+
+        /// <summary>
+        /// Точка добавления нового сорта винограда
+        /// </summary>
+        public static string AddAdminGrapeVarietyPath = "GrapeVariety/AddGrapeVariety";
+
+        #endregion
     }
 }

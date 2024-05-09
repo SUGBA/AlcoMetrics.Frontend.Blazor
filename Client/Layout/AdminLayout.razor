@@ -1,0 +1,76 @@
+﻿@using Client.Auth.Share
+@rendermode RenderMode.InteractiveWebAssembly
+@inject NavigationManager NavManager;
+@inject AuthenticationStateProvider authenticationStateProvider
+@inherits LayoutComponentBase
+
+<AuthorizeView Roles="Admin">
+    <body>
+        <div class="navigationBar">
+            @* <a href="#" class="underline-one">Калькулятор</a> *@
+            <a class="underline-one" @onclick="(()=>ToProjectsPage())">Сорта винограда</a>
+            @* <a href="#" class="underline-one">Личный кабинет</a> *@
+            <a class="underline-one" @onclick="(async ()=>await Logout())">Выйти</a>
+        </div>
+
+        @Body
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="footer-col">
+                        <h4>Проект</h4>
+                        <ul>
+                            <li><a href="#">О нас</a></li>
+                            <li><a href="#">Наши продукты</a></li>
+                            <li><a href="#">Возможности</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Справка</h4>
+                        <ul>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Используемые технологии</a></li>
+                            <li><a href="#">Консультации</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Сотрудничество</h4>
+                        <ul>
+                            <li><a href="#">Партнеры</a></li>
+                            <li><a href="#">В цифрах</a></li>
+                            <li><a href="#">Отзывы</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+</AuthorizeView>
+
+@code
+{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var state = await AuthState;
+        if (state.User.Identity == null || !state.User.Identity!.IsAuthenticated)
+            NavManager.NavigateTo("/auth");
+    }
+
+    /// <summary>
+    /// Обработчик события выхода из системы
+    /// </summary>
+    private async Task Logout()
+    {
+        await ((IdentityAuthenticationStateProvider)authenticationStateProvider).UnAuthorizeUser();
+        NavManager.NavigateTo("/auth");
+    }
+
+    private void ToProjectsPage()
+    {
+        NavManager.NavigateTo("ProjectPage");
+    }
+}

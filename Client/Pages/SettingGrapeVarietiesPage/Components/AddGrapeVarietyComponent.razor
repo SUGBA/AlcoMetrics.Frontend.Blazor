@@ -1,0 +1,45 @@
+﻿@using Client.Pages.ProjectsPage.Models.Request
+@using Client.Pages.ProjectsPage.Request
+@using Client.Pages.SettingGrapeVarietiesPage.Models
+@using Client.SharedComponents.Forms
+@rendermode RenderMode.InteractiveWebAssembly
+
+<DefaultForm1 Header="Добавление сорта винограда" Model="Model" TModelType="GrapeVarietyResponse" SubmitButton="OnSubmit">
+    <DataAnnotationsValidator />
+    <p><InputText @bind-Value="Model.GrapeVarietyName" placeholder="Наименование сорта"></InputText></p>
+    <ValidationMessage For="(()=>Model.GrapeVarietyName)" />
+    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.Wort)" />
+    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Процентное содержание спирта"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.AlcoholValue)" />
+    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.SugarValue)" />
+    <p>Желаемые показатели</p>
+    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Процентное содержание спирта"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
+    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
+    <p><input type="submit" value="Создать"></p>
+</DefaultForm1>
+
+@code {
+    /// <summary>
+    /// Модель для создания по сорту винограда
+    /// </summary>
+    public GrapeVarietyResponse Model { get; set; } = new();
+
+    /// <summary>
+    /// Обработчик нажатия кнопки отправить
+    /// </summary>
+    [Parameter]
+    public EventCallback<GrapeVarietyResponse> SubmitButton { get; set; }
+
+    /// <summary>
+    /// Получение сортов винограда
+    /// </summary>
+    /// <returns></returns>
+    private async Task OnSubmit()
+    {
+        await SubmitButton.InvokeAsync(Model);
+    }
+}
