@@ -1,0 +1,57 @@
+﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager NavManager;
+
+@if (IsAdmin)
+{
+    <AdminLayout>@Body</AdminLayout>
+}
+@if (IsWineMaker)
+{
+    <WineMakerLayout>@Body</WineMakerLayout>
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    /// <summary>
+    /// Флаг что данный пользователь администратор
+    /// </summary>
+    private bool IsAdmin;
+
+    /// <summary>
+    /// Флаг, что данный пользователь винодел
+    /// </summary>
+    private bool IsWineMaker;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var state = await AuthState;
+        if (state.User.Identity == null || !state.User.Identity!.IsAuthenticated)
+            NavManager.NavigateTo("/auth");
+
+        IsAdmin = await IsAdminRole();
+        IsWineMaker = await IsWineMakerRole();
+    }
+
+    /// <summary>
+    /// Получение флага, что данный пользователь администратор
+    /// </summary>
+    /// <returns></returns>
+    private async Task<bool> IsAdminRole()
+    {
+        var state = await AuthState;
+        return state.User.IsInRole("Admin");
+    }
+
+    /// <summary>
+    /// Получение флага, что данный пользователь винодел
+    /// </summary>
+    /// <returns></returns>
+    private async Task<bool> IsWineMakerRole()
+    {
+        var state = await AuthState;
+        return state.User.IsInRole("WineMaker");
+    }
+}

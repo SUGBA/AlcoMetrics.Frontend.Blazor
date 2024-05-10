@@ -6,6 +6,7 @@ using Client.Auth.PasswordAuthentification.Abstract;
 using Client.Auth.Share;
 using Client.Configuration.ApiConfiguration;
 using Client.Pages.ProjectsPage.Services;
+using Client.Pages.SettingGrapeVarietiesPage.Services;
 using Client.Pages.TimeLineDayPage.Services;
 using Client.Pages.TimeLinePage.Services;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -43,6 +44,7 @@ namespace Client
 
             builder.Services.AddBlazoredModal();
 
+            builder.Services.AddTransient<IGrapeVarietiesApiService, GrapeVarietiesApiService>();
             builder.Services.AddTransient<IProjectPageApiService, ProjectPageApiService>();
             builder.Services.AddTransient<ITimeLineApiService, TimeLineApiService>();
             builder.Services.AddTransient<ITimeLineDayApiService, TimeLineDayApiService>();

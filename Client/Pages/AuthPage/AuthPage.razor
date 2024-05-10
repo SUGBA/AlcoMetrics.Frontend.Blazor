@@ -10,7 +10,7 @@
     <div class="authContainer">
         <a @onclick="(()=>SetAuthPageMode(LoginOrRegisterEnum.Register))"><div class="signup">Регистрация</div></a>
         <a @onclick="(()=>SetAuthPageMode(LoginOrRegisterEnum.Login))"><div class="login">Авторизация</div></a>
-        @AuthPageMode
+        @AuthPageModel
     </div>
 </div>
 
@@ -24,7 +24,7 @@
     /// <summary>
     /// Вход/Регистрация
     /// </summary>
-    public RenderFragment AuthPageMode { get; set; } = @<LogInComponent></LogInComponent>;
+    public RenderFragment AuthPageModel { get; set; } = @<LogInComponent></LogInComponent>;
 
     /// <summary>
     /// Обработчик переключателя Вход/Регистрация
@@ -35,10 +35,10 @@
         switch (type)
         {
             case LoginOrRegisterEnum.Login:
-                AuthPageMode = @<LogInComponent></LogInComponent>;
+                AuthPageModel = @<LogInComponent></LogInComponent>;
                 break;
             case LoginOrRegisterEnum.Register:
-                AuthPageMode = @<SignUpComponent></SignUpComponent>;
+                AuthPageModel = @<SignUpComponent></SignUpComponent>;
                 break;
             default:
                 break;

@@ -127,12 +127,17 @@
         /// <summary>
         /// Точка редактирования сорта винограда
         /// </summary>
-        public static string UpdateAdminGrapeVarietiesPath = "GrapeVariety/GetGrapeVarieties";
+        public static string UpdateAdminGrapeVarietiesPath = "GrapeVariety/UpdateGrapeVariety";
 
         /// <summary>
         /// Точка добавления нового сорта винограда
         /// </summary>
         public static string AddAdminGrapeVarietyPath = "GrapeVariety/AddGrapeVariety";
+
+        /// <summary>
+        /// Точка удаления сорта винограда
+        /// </summary>
+        public static string RemoveAdminGrapeVarietyPath = "GrapeVariety/RemoveGrapeVariety";
 
         #endregion
     }

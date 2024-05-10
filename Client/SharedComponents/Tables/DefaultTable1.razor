@@ -111,12 +111,6 @@
         StateHasChanged();
     }
 
-    protected override void OnParametersSet()
-    {
-        Edits = Data.Select(x => x).ToDictionary(k => k.Id, v => default(Boolean));
-        UpdatedRows = Data.Select(x => x).ToDictionary(k => k.Id, v => v.Cells[0]);
-    }
-
     public override Task SetParametersAsync(ParameterView parameters)
     {
         if (parameters.TryGetValue<List<Row>>(nameof(Data), out var value))

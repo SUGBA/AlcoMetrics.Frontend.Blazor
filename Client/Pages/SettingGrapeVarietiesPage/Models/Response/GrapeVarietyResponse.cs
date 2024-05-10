@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Client.Pages.SettingGrapeVarietiesPage.Models
+namespace Client.Pages.SettingGrapeVarietiesPage.Models.Response
 {
     /// <summary>
     /// Модель сорта винограда
@@ -30,5 +30,11 @@ namespace Client.Pages.SettingGrapeVarietiesPage.Models
         /// </summary>
         [JsonPropertyName("AcidValue")]
         public double AcidValue { get; set; }
+
+        /// <summary>
+        /// Метод клонирования, нужен для таблицы, чтобы ссылки на текущую запись не влияла на искомую запись
+        /// </summary>
+        /// <returns></returns>
+        public GrapeVarietyResponse Clone() => (GrapeVarietyResponse)this.MemberwiseClone();
     }
 }

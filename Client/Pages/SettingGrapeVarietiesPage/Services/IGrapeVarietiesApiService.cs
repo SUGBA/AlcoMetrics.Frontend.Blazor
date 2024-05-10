@@ -1,4 +1,4 @@
-﻿using Client.Pages.SettingGrapeVarietiesPage.Models;
+﻿using Client.Pages.SettingGrapeVarietiesPage.Models.Response;
 
 namespace Client.Pages.SettingGrapeVarietiesPage.Services
 {
@@ -25,6 +25,13 @@ namespace Client.Pages.SettingGrapeVarietiesPage.Services
         /// </summary>
         /// <param name="model"> Добавляемый сорт винограда </param>
         /// <returns></returns>
-        Task<bool> AddGrapeVarietyAsync(GrapeVarietyResponse model);
+        Task<GrapeVarietyResponse> AddGrapeVarietyAsync(GrapeVarietyResponse model);
+
+        /// <summary>
+        /// Точка для удаления сорта винограда
+        /// </summary>
+        /// <param name="id"> Id сорта винограда </param>
+        /// <returns></returns>
+        Task<bool> RemoveGrapeVarietyAsync(int id);
     }
 }

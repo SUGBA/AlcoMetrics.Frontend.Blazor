@@ -1,12 +1,18 @@
 ﻿@page "/GrapeVarietySettings"
 @using Client.Pages.SettingGrapeVarietiesPage.Components
-@using Client.Pages.SettingGrapeVarietiesPage.Models
+@using Client.Pages.SettingGrapeVarietiesPage.Models;
+@using Client.Pages.SettingGrapeVarietiesPage.Models.Request
+@using Client.Pages.SettingGrapeVarietiesPage.Models.Response
+@using Client.Pages.SettingGrapeVarietiesPage.Services
+@using Client.SharedComponents.Modal
+@using Microsoft.AspNetCore.Authorization
+@inject IGrapeVarietiesApiService apiService
 
 <div class="contentRowsContainer">
     <div class="listProjects">
-        @if (ProjectData != null)
+        @if (GrapeData != null)
         {
-            <GrapeVarietyTable Data="ProjectData" DeleteButtonEvent="DeleteGrapeVariety" EditButtonEvent="UpdateGrapeVariety" AddButtonEvent="ShowAddGrapeVarietyForm"/>
+            <GrapeVarietyTable Data="GrapeData" DeleteButtonEvent="DeleteGrapeVariety" EditButtonEvent="UpdateGrapeVariety" AddButtonEvent="ShowAddGrapeVarietyForm" />
         }
         @AddGrapeVarietyForm
     </div>
@@ -15,7 +21,7 @@
     /// <summary>
     /// Список проектов
     /// </summary>
-    public List<GrapeVarietyResponse> ProjectData { get; set; } = new ();
+    public List<GrapeVarietyResponse> GrapeData { get; set; } = new();
 
     /// <summary>
     /// Заголовки таблицы с проектами
@@ -27,51 +33,63 @@
     /// </summary>
     private RenderFragment AddGrapeVarietyForm = builder => { };
 
+    /// <summary>
+    /// Модалка
+    /// </summary>
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
-        ProjectData = await GetGapeVarietiesAsync();
+        GrapeData = await GetGapeVarietiesAsync();
     }
 
-    private Task DeleteGrapeVariety(GrapeVarietyResponse model)
+    private async Task DeleteGrapeVariety(GrapeVarietyResponse model)
     {
-        return Task.Run(() =>
+        var result = await apiService.RemoveGrapeVarietyAsync(model.Id);
+        if (result)
         {
-            ProjectData.Remove(model);
-            StateHasChanged();
-        });
+            GrapeData.Remove(model);
+        }
+        else
+            ShowErrorModal("Ошибка в ходе удаления сорта винограда. Попробуйте повторить попытку позже.", "Ошибка при удалении сорта винограда");
     }
 
-    private Task UpdateGrapeVariety(GrapeVarietyResponse model)
+    private async Task UpdateGrapeVariety(GrapeVarietyResponse model)
     {
-        return Task.Run(() =>
+        var result = await apiService.UpdateGrapeVariety(model);
+        if (result)
         {
-            var existItem = ProjectData.First(x => x.Id == model.Id);
-            existItem = model;
-            StateHasChanged();
-        });
+            var existItem = GrapeData.First(x => x.Id == model.Id);
+            existItem.SugarValue = model.SugarValue;
+            existItem.AcidValue = model.AcidValue;
+            existItem.GrapeVarietyName = model.GrapeVarietyName;
+        }
+        else
+            ShowErrorModal("Ошибка в ходе обновления сорта винограда. Попробуйте повторить попытку позже.", "Ошибка при обновлении показаний сорта винограда");
+
     }
 
-    private Task AddGrapeVariety(GrapeVarietyResponse model)
+    private async Task<List<GrapeVarietyResponse>> GetGapeVarietiesAsync()
     {
-        return Task.Run(() =>
-        {
-            ProjectData.Add(model);
-            StateHasChanged();
-        });
+        return await apiService.GetGrapeVarieties();
     }
 
-    private Task<List<GrapeVarietyResponse>> GetGapeVarietiesAsync()
+    private async Task CreateGrapeVariety(GrapeVarietyRequest model)
     {
-        return Task.Run(() => new List<GrapeVarietyResponse>()
+        var createdMoedl = new GrapeVarietyResponse()
         {
-            new GrapeVarietyResponse(){Id = 1, AcidValue = 30, GrapeVarietyName = "Grape 1", SugarValue = 85 },
-            new GrapeVarietyResponse(){Id = 2, AcidValue = 31, GrapeVarietyName = "Grape 2", SugarValue = 75 },
-            new GrapeVarietyResponse(){Id = 3, AcidValue = 32, GrapeVarietyName = "Grape 3", SugarValue = 66 },
-            new GrapeVarietyResponse(){Id = 4, AcidValue = 33, GrapeVarietyName = "Grape 4", SugarValue = 88 },
-            new GrapeVarietyResponse(){Id = 5, AcidValue = 34, GrapeVarietyName = "Grape 5", SugarValue = 75 },
-            new GrapeVarietyResponse(){Id = 6, AcidValue = 35, GrapeVarietyName = "Grape 6", SugarValue = 84 },
-            new GrapeVarietyResponse(){Id = 7, AcidValue = 36, GrapeVarietyName = "Grape 7", SugarValue = 76 },
-        });
+                AcidValue = (int)model.AcidValue!,
+                SugarValue = (int)model.SugarValue!,
+                GrapeVarietyName = model.GrapeVarietyName,
+        };
+        var result = await apiService.AddGrapeVarietyAsync(createdMoedl);
+        if (result !=null)
+        {
+            GrapeData.Add(result);
+            AddGrapeVarietyForm = builder => { };
+        }
+        else
+            ShowErrorModal("Ошибка в ходе создании нового сорта винограда. Попробуйте повторить попытку позже.", "Ошибка при создании сорта винограда");
     }
 
     /// <summary>
@@ -80,6 +98,13 @@
     /// </summary>
     private void ShowAddGrapeVarietyForm()
     {
-        AddGrapeVarietyForm = @<basefo></basefo>
+        AddGrapeVarietyForm =@<AddGrapeVarietyComponent SubmitButton="CreateGrapeVariety"></AddGrapeVarietyComponent>;
+    }
+
+    private void ShowErrorModal(string message, string title)
+    {
+        var errors = new List<string>() { message };
+        var param = new ModalParameters().Add(nameof(ErrorModal.Errors), errors);
+        Modal.Show<ErrorModal>(title, param);
     }
 }

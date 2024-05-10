@@ -1,41 +1,33 @@
-﻿@using Client.Pages.ProjectsPage.Models.Request
-@using Client.Pages.ProjectsPage.Request
-@using Client.Pages.SettingGrapeVarietiesPage.Models
+﻿@using Client.Pages.SettingGrapeVarietiesPage.Models.Request
 @using Client.SharedComponents.Forms
+
 @rendermode RenderMode.InteractiveWebAssembly
 
-<DefaultForm1 Header="Добавление сорта винограда" Model="Model" TModelType="GrapeVarietyResponse" SubmitButton="OnSubmit">
+<DefaultForm1 Header="Добавление сорта винограда" Model="Model" TModelType="GrapeVarietyRequest" SubmitButton="OnSubmit">
     <DataAnnotationsValidator />
     <p><InputText @bind-Value="Model.GrapeVarietyName" placeholder="Наименование сорта"></InputText></p>
     <ValidationMessage For="(()=>Model.GrapeVarietyName)" />
     <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
-    <ValidationMessage For="(()=>Model.Wort)" />
-    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Процентное содержание спирта"></InputNumber></p>
-    <ValidationMessage For="(()=>Model.AlcoholValue)" />
-    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
     <ValidationMessage For="(()=>Model.SugarValue)" />
-    <p>Желаемые показатели</p>
-    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Процентное содержание спирта"></InputNumber></p>
-    <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
-    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Содержание сахара"></InputNumber></p>
-    <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
+    <p><InputNumber @bind-Value="Model.AcidValue" placeholder="Кислотность"></InputNumber></p>
+    <ValidationMessage For="(()=>Model.AcidValue)" />
     <p><input type="submit" value="Создать"></p>
 </DefaultForm1>
 
 @code {
     /// <summary>
-    /// Модель для создания по сорту винограда
+    /// Модель для создания сорта винограда
     /// </summary>
-    public GrapeVarietyResponse Model { get; set; } = new();
+    public GrapeVarietyRequest Model { get; set; } = new();
 
     /// <summary>
     /// Обработчик нажатия кнопки отправить
     /// </summary>
     [Parameter]
-    public EventCallback<GrapeVarietyResponse> SubmitButton { get; set; }
+    public EventCallback<GrapeVarietyRequest> SubmitButton { get; set; }
 
     /// <summary>
-    /// Получение сортов винограда
+    /// Добавить новый сорт винограда
     /// </summary>
     /// <returns></returns>
     private async Task OnSubmit()

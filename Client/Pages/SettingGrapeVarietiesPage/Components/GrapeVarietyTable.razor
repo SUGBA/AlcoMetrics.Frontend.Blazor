@@ -1,4 +1,5 @@
 ﻿@using Client.Pages.SettingGrapeVarietiesPage.Models
+@using Client.Pages.SettingGrapeVarietiesPage.Models.Response
 @using Client.SharedComponents.Buttons
 
 @inherits ComponentBase
@@ -12,7 +13,7 @@
                 <input @bind-value="@SearchLine" type="text" placeholder="Искать здесь...">
                 <button @onclick="Sort" type="submit"></button>
             </div>
-            <BaseButton1 Content="Добавить"></BaseButton1>
+            <BaseButton1 Content="Добавить" ButtonEvent="AddButtonEvent"></BaseButton1>
         </div>
     </caption>
     <tr>
@@ -28,9 +29,9 @@
         <tr>
             @if (Edits[Data[copyI].Id])
             {
-                <td><input placeholder="@Data[copyI].GrapeVarietyName" @bind-value="UpdatedRows[Data[copyI].Id].GrapeVarietyName" /></td>
-                <td><input placeholder="@Data[copyI].SugarValue" @bind-value="UpdatedRows[Data[copyI].Id].SugarValue" /></td>
-                <td><input placeholder="@Data[copyI].AcidValue" @bind-value="UpdatedRows[Data[copyI].Id].AcidValue" /></td>
+                <td><input placeholder="@UpdatedRows[Data[copyI].Id].GrapeVarietyName" @bind-value="UpdatedRows[Data[copyI].Id].GrapeVarietyName" /></td>
+                <td><input placeholder="@UpdatedRows[Data[copyI].Id].SugarValue" @bind-value="UpdatedRows[Data[copyI].Id].SugarValue" /></td>
+                <td><input placeholder="@UpdatedRows[Data[copyI].Id].AcidValue" @bind-value="UpdatedRows[Data[copyI].Id].AcidValue" /></td>
                 <td><a class="noselect" type="submit" @onclick="(async ()=> await AcceptButton(Data[copyI].Id))">Подтвердить</a></td>
                 <td><a class="noselect" @onclick="(()=>ChangeRow(Data[copyI].Id))">Отменить</a></td>
             }
@@ -107,19 +108,13 @@
         Headers = new List<string>() { "Наименование", "Содержание сахара г/100см^3", "Кислотность г/дм^3" };
     }
 
-    protected override void OnParametersSet()
-    {
-        Edits = Data.ToDictionary(k => k.Id, v => default(Boolean));
-        UpdatedRows = Data.ToDictionary(k => k.Id, v => v);
-    }
-
     public override Task SetParametersAsync(ParameterView parameters)
     {
         if (parameters.TryGetValue<List<GrapeVarietyResponse>>(nameof(Data), out var value))
         {
             Data = value;
             Edits = value.ToDictionary(k => k.Id, v => default(Boolean));
-            UpdatedRows = Data.ToDictionary(k => k.Id, v => v);
+            UpdatedRows = value.ToDictionary(k => k.Id, v => v.Clone());
         }
 
         return base.SetParametersAsync(parameters);

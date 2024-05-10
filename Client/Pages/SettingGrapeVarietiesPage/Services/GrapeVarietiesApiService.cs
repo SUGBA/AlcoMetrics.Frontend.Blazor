@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Client.Configuration.ApiConfiguration;
-using Client.Pages.SettingGrapeVarietiesPage.Models;
+using Client.Pages.SettingGrapeVarietiesPage.Models.Response;
 
 namespace Client.Pages.SettingGrapeVarietiesPage.Services
 {
@@ -16,7 +16,7 @@ namespace Client.Pages.SettingGrapeVarietiesPage.Services
             _httpClient = httpClient;
         }
 
-        public async Task<bool> AddGrapeVarietyAsync(GrapeVarietyResponse model)
+        public async Task<GrapeVarietyResponse> AddGrapeVarietyAsync(GrapeVarietyResponse model)
         {
             var domenPath = WineBackendConfiguration.DomenPath;
             var addGrapePath = WineBackendConfiguration.AddAdminGrapeVarietyPath;
@@ -24,18 +24,35 @@ namespace Client.Pages.SettingGrapeVarietiesPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, model);
 
-            return await response.Content.ReadFromJsonAsync<bool>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<GrapeVarietyResponse>() ?? new();
+            return new GrapeVarietyResponse();
         }
 
         public async Task<List<GrapeVarietyResponse>> GetGrapeVarieties()
         {
             var domenPath = WineBackendConfiguration.DomenPath;
-            var getGrapeVarieties = WineBackendConfiguration.GetGrapeVarietiesPath;
+            var getGrapeVarieties = WineBackendConfiguration.GetAdminGrapeVarietiesPath;
             var path = $"{domenPath}/{getGrapeVarieties}";
 
             var response = await _httpClient.GetAsync(path);
 
-            return await response.Content.ReadFromJsonAsync<List<GrapeVarietyResponse>>() ?? new();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<List<GrapeVarietyResponse>>() ?? new();
+            return new List<GrapeVarietyResponse>();
+        }
+
+        public async Task<bool> RemoveGrapeVarietyAsync(int id)
+        {
+            var domenPath = WineBackendConfiguration.DomenPath;
+            var removeGrapePath = WineBackendConfiguration.RemoveAdminGrapeVarietyPath;
+            var path = $"{domenPath}/{removeGrapePath}/{id}";
+
+            var response = await _httpClient.PostAsync(path, null);
+
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<bool>();
+            return false;
         }
 
         public async Task<bool> UpdateGrapeVariety(GrapeVarietyResponse model)
@@ -46,7 +63,9 @@ namespace Client.Pages.SettingGrapeVarietiesPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, model);
 
-            return await response.Content.ReadFromJsonAsync<bool>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<bool>();
+            return false;
         }
     }
 }

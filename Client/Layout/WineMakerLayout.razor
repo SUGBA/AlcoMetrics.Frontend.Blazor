@@ -3,6 +3,7 @@
 @inject NavigationManager NavManager;
 @inject AuthenticationStateProvider authenticationStateProvider
 @inherits LayoutComponentBase
+@layout MainLayout
 
 <AuthorizeView Roles="WineMaker">
     <body>
@@ -13,7 +14,7 @@
             <a class="underline-one" @onclick="(async ()=>await Logout())">Выйти</a>
         </div>
 
-        @Body
+        @ChildContent
 
         <footer class="footer">
             <div class="container">
@@ -50,15 +51,11 @@
 
 @code
 {
-    [CascadingParameter]
-    public Task<AuthenticationState> AuthState { get; set; }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        var state = await AuthState;
-        if (state.User.Identity == null || !state.User.Identity!.IsAuthenticated)
-            NavManager.NavigateTo("/auth");
-    }
+    /// <summary>
+    /// Основное тело
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
     /// Обработчик события выхода из системы

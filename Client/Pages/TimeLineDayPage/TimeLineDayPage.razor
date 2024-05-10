@@ -439,7 +439,7 @@
     private async Task<Dictionary<string, int>> GetListProjects()
     {
         var result = await timeLIneDayService.GetProjectsAsync(ProjectId);
-        if (result == null || result.Count() == 0)
+        if (result == null)
         {
             ShowErrorModal("Не удалось получить список проектов, убедитесь, что существуют другие проекты.", "Ошибка при создании мероприятия");
             return new Dictionary<string, int>();
