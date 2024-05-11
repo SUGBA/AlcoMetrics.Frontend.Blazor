@@ -3,9 +3,9 @@
 
 <DefaultForm1 Header="Добавление события крепления" Model="Model" TModelType="AddAlcoholizationEvent" SubmitButton="OnSubmit">
     <DataAnnotationsValidator />
-    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Желаемая крепость"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Желаемая крепость %"></InputNumber></p>
     <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
-    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Крепость спирта"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Крепость спирта %"></InputNumber></p>
     <ValidationMessage For="(()=>Model.AlcoholValue)" />
     <p><input type="submit" value="Создать"></p>
 </DefaultForm1>

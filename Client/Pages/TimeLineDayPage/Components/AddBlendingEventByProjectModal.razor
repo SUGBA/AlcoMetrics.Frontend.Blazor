@@ -2,7 +2,7 @@
 @using Client.SharedComponents.Forms
 @using Client.SharedComponents.Selectors
 
-<DefaultForm1 Header="Добавление события крепления" Model="Model" TModelType="AddBlendingEventByProject" SubmitButton="OnSubmit">
+<DefaultForm1 Header="Добавление события купажирования" Model="Model" TModelType="AddBlendingEventByProject" SubmitButton="OnSubmit">
     <DataAnnotationsValidator />
     <p><BaseSelector Options="ListProjects" SelectOptionEvent="SelectOption" TEnumType="int"></BaseSelector></p>
     <ValidationMessage For="(()=>Model.SelectedProjectId)" />

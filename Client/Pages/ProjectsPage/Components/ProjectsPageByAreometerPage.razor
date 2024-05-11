@@ -6,14 +6,14 @@
     <DataAnnotationsValidator />
     <p><InputText @bind-Value="Model.ProjectName" placeholder="Название проекта"></InputText></p>
     <ValidationMessage For="(()=>Model.ProjectName)" />
-    <p><InputNumber @bind-Value="Model.Wort" placeholder="Объем сусла"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.Wort" placeholder="Объем сусла Л."></InputNumber></p>
     <ValidationMessage For="(()=>Model.Wort)" />
     <p><InputNumber @bind-Value="Model.AreometerValue" placeholder="Показания ареометра"></InputNumber></p>
     <ValidationMessage For="(()=>Model.AreometerValue)" />
     <p>Желаемые показатели</p>
     <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Процентное содержание спирта"></InputNumber></p>
     <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
-    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Содержание сахара г/Л."></InputNumber></p>
     <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
     <p><input type="submit" value="Создать"></p>
 </DefaultForm1>

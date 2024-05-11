@@ -5,11 +5,11 @@
 
 <DefaultForm1 Header="Актуализация показателей" Model="Model" TModelType="UpdateIndicatorsByAllParam" SubmitButton="Submit">
     <DataAnnotationsValidator />
-    <p><InputNumber @bind-Value="Model.AlcoholPercentage" placeholder="Процент алкоголя"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.AlcoholPercentage" placeholder="Процент алкоголя %"></InputNumber></p>
     <ValidationMessage For="(()=>Model.AlcoholPercentage)" />
-    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара г/Л."></InputNumber></p>
     <ValidationMessage For="(()=>Model.SugarValue)" />
-    <p><InputNumber @bind-Value="Model.Wort" placeholder="Объем"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.Wort" placeholder="Объем Л."></InputNumber></p>
     <ValidationMessage For="(()=>Model.Wort)" />
     <p><input type="submit" value="Актуализировать"></p>
 </DefaultForm1>

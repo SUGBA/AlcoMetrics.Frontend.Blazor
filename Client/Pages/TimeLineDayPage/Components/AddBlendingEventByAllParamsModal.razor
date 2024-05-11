@@ -1,15 +1,15 @@
 ﻿@using Client.Pages.TimeLineDayPage.Request
 @using Client.SharedComponents.Forms
 
-<DefaultForm1 Header="Добавление события крепления" Model="Model" TModelType="AddBlendingEventByAllParams" SubmitButton="OnSubmit">
+<DefaultForm1 Header="Добавление события купажирования" Model="Model" TModelType="AddBlendingEventByAllParams" SubmitButton="OnSubmit">
     <DataAnnotationsValidator />
-    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Содержание спирта в купаже"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.AlcoholValue" placeholder="Содержание спирта в купаже %"></InputNumber></p>
     <ValidationMessage For="(()=>Model.AlcoholValue)" />
-    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара в купаже"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара в купаже г/Л."></InputNumber></p>
     <ValidationMessage For="(()=>Model.SugarValue)" />
-    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Желаемое содержание спирта"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.DesiredAlcoholValue" placeholder="Желаемое содержание спирта %"></InputNumber></p>
     <ValidationMessage For="(()=>Model.DesiredAlcoholValue)" />
-    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Желаемое содержание сахара"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.DesiredSugarValue" placeholder="Желаемое содержание сахара г/Л."></InputNumber></p>
     <ValidationMessage For="(()=>Model.DesiredSugarValue)" />
     <p><input type="submit" value="Создать"></p>
 

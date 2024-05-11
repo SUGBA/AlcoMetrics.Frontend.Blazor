@@ -7,9 +7,9 @@
     <DataAnnotationsValidator />
     <p><InputText @bind-Value="Model.GrapeVarietyName" placeholder="Наименование сорта"></InputText></p>
     <ValidationMessage For="(()=>Model.GrapeVarietyName)" />
-    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.SugarValue" placeholder="Содержание сахара г/100см^3"></InputNumber></p>
     <ValidationMessage For="(()=>Model.SugarValue)" />
-    <p><InputNumber @bind-Value="Model.AcidValue" placeholder="Кислотность"></InputNumber></p>
+    <p><InputNumber @bind-Value="Model.AcidValue" placeholder="Кислотность г/дм^3"></InputNumber></p>
     <ValidationMessage For="(()=>Model.AcidValue)" />
     <p><input type="submit" value="Создать"></p>
 </DefaultForm1>
