@@ -17,9 +17,6 @@
 
 
 <div class="contentRowsContainer">
-    <div class="buttonContainer">
-        <BaseButton1 Content="Справка" />
-    </div>
     <div class="contentContainer">
         <div class="leftContentContainer">
             <BaseCard1 Content="CardData" />
@@ -178,6 +175,7 @@
             return;
         }
         CardData = await Map(await GetCurrentIndicator(DayId));
+        UpdateIndicatorsForm = builder => { };
     }
 
     /// <summary>
@@ -195,6 +193,7 @@
             return;
         }
         CardData = await Map(await GetCurrentIndicator(DayId));
+        UpdateIndicatorsForm = builder => { };
     }
 
     /// <summary>
@@ -283,7 +282,7 @@
                 result.IsReady.ToDefaultStringFormat()}
             });
         DataFromApi.Add(result);
-
+        AddEventForm = builder => { };
         StateHasChanged();
     }
 
@@ -310,7 +309,7 @@
                 result.IsReady.ToDefaultStringFormat()}
             });
         DataFromApi.Add(result);
-
+        AddEventForm = builder => { };
         StateHasChanged();
     }
 
@@ -337,7 +336,7 @@
                 result.IsReady.ToDefaultStringFormat()}
             });
         DataFromApi.Add(result);
-
+        AddEventForm = builder => { };
         StateHasChanged();
     }
 
@@ -364,7 +363,7 @@
                 result.IsReady.ToDefaultStringFormat()}
             });
         DataFromApi.Add(result);
-
+        AddEventForm = builder => { };
         StateHasChanged();
     }
 
