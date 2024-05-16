@@ -1,9 +1,10 @@
 ﻿@using Client.Pages.ProjectsPage.Models
+@using System.Globalization
 @typeparam TEnumType
 
 
 <div class="selectdiv">
-    <InputSelect ValueChanged="(async (TEnumType e)=>await SelectOption(e))" ValueExpression="(()=>ActiveOption)">
+    <InputSelect ValueExpression="(()=>ActiveOption)" @oninput="HandleInputAsync">
         @foreach (var item in Options)
         {
             <option value="@item.Value">@item.Key</option>
@@ -35,12 +36,12 @@
     /// <summary>
     /// Обработчик выбора селектора
     /// </summary>
-    /// <param name="type"></param>
     /// <returns></returns>
-    private async Task SelectOption(TEnumType type)
+    private async Task HandleInputAsync(ChangeEventArgs e)
     {
-        ActiveOption = type;
-
-        await SelectOptionEvent.InvokeAsync(type);
+        if (e.Value == null)
+            return;
+        if (BindConverter.TryConvertTo<TEnumType>(e.Value, CultureInfo.CurrentCulture, out var newValue))
+            await SelectOptionEvent.InvokeAsync(newValue);
     }
 }
