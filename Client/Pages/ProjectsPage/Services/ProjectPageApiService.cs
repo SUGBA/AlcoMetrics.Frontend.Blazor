@@ -50,8 +50,9 @@ namespace Client.Pages.ProjectsPage.Services
             var path = $"{domenPath}/{createProjectPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
-
-            return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+            return new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
         }
 
         /// <summary>
@@ -66,8 +67,9 @@ namespace Client.Pages.ProjectsPage.Services
             var path = $"{domenPath}/{createProjectPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
-
-            return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+            return new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
         }
 
         /// <summary>
@@ -82,8 +84,9 @@ namespace Client.Pages.ProjectsPage.Services
             var path = $"{domenPath}/{createProjectPath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
-
-            return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+            if(response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CreateProjectResponse>() ?? new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
+            return new CreateProjectResponse() { Error = EMPTY_RESPONSE_ERROR };
         }
 
         /// <summary>

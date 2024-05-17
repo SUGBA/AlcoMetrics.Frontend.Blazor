@@ -27,8 +27,9 @@ namespace Client.Pages.TimeLinePage.Services
             var path = $"{domenPath}/{getDaysPath}/{projectId}";
 
             var response = await _httpClient.GetAsync(path);
-
-            return await response.Content.ReadFromJsonAsync<IEnumerable<DayIndicators>>() ?? Enumerable.Empty<DayIndicators>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<IEnumerable<DayIndicators>>() ?? Enumerable.Empty<DayIndicators>();
+            return Enumerable.Empty<DayIndicators>();
         }
     }
 }

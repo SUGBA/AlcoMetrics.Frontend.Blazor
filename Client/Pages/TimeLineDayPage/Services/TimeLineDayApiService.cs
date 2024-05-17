@@ -24,8 +24,9 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{getIndicatorsPath}/{dayId}";
 
             var response = await _httpClient.GetAsync(path);
-
-            return await response.Content.ReadFromJsonAsync<CurrentDayIndicatrosResponse>() ?? new CurrentDayIndicatrosResponse();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CurrentDayIndicatrosResponse>() ?? new CurrentDayIndicatrosResponse();
+            return new CurrentDayIndicatrosResponse();
         }
 
         public async Task<IEnumerable<CurrentDayEventsResponse>> GetEventsAsync(int dayId)
@@ -35,8 +36,9 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{getEventPath}/{dayId}";
 
             var response = await _httpClient.GetAsync(path);
-
-            return await response.Content.ReadFromJsonAsync<IEnumerable<CurrentDayEventsResponse>>() ?? Enumerable.Empty<CurrentDayEventsResponse>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<IEnumerable<CurrentDayEventsResponse>>() ?? Enumerable.Empty<CurrentDayEventsResponse>();
+            return Enumerable.Empty<CurrentDayEventsResponse>();
         }
 
         public async Task<string?> UpdateDayIndicatorsByAllParamsAsync(UpdateIndicatorsByAllParam model)
@@ -46,8 +48,9 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{updatePath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, model);
-
-            return await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsStringAsync();
+            return null;
         }
 
         public async Task<string?> UpdateDayIndicatorsByAreometerAsync(UpdateIndicatorsByAllAreometer model)
@@ -57,8 +60,9 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{updatePath}";
 
             var response = await _httpClient.PostAsJsonAsync(path, model);
-
-            return await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsStringAsync();
+            return null;
         }
 
         public async Task<CurrentDayEventsResponse?> AddAlcoholizationEventAsync(AddAlcoholizationEvent request)
@@ -69,10 +73,9 @@ namespace Client.Pages.TimeLineDayPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
 
-            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                return null;
-
-            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            return null;
         }
 
         public async Task<CurrentDayEventsResponse?> AddBlendingEventByAllParamsAsync(AddBlendingEventByAllParams request)
@@ -83,11 +86,9 @@ namespace Client.Pages.TimeLineDayPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
 
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                return null;
-
-            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            return null;
         }
 
         public async Task<CurrentDayEventsResponse?> AddBlendingEventByProjectAsync(AddBlendingEventByProject request)
@@ -98,11 +99,9 @@ namespace Client.Pages.TimeLineDayPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
 
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                return null;
-
-            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            return null;
         }
 
         public async Task<CurrentDayEventsResponse?> AddShaptalizationEventAsync(AddShaptalizationEvent request)
@@ -113,11 +112,9 @@ namespace Client.Pages.TimeLineDayPage.Services
 
             var response = await _httpClient.PostAsJsonAsync(path, request);
 
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                return null;
-
-            return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<CurrentDayEventsResponse>();
+            return null;
         }
 
         public async Task<List<GetProjectsResponse>> GetProjectsAsync(int currentProjectId)
@@ -127,9 +124,12 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{getProjectsPath}/{currentProjectId}";
 
             var response = await _httpClient.GetAsync(path);
-
-            var result = await response.Content.ReadFromJsonAsync<IEnumerable<GetProjectsResponse>>();
-            return result?.ToList() ?? new List<GetProjectsResponse>();
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<IEnumerable<GetProjectsResponse>>();
+                return result?.ToList() ?? new List<GetProjectsResponse>();
+            }
+            return new List<GetProjectsResponse>();
         }
 
         public async Task<bool> AcceptEventAsync(int eventId)
@@ -139,8 +139,9 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{acceptEventPath}/{eventId}";
 
             var response = await _httpClient.PostAsync(path, null);
-
-            return await response.Content.ReadFromJsonAsync<bool>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<bool>();
+            return false;
         }
 
         public async Task<bool> DeleteEventAsync(int eventId)
@@ -150,8 +151,9 @@ namespace Client.Pages.TimeLineDayPage.Services
             var path = $"{domenPath}/{removeEventPath}/{eventId}";
 
             var response = await _httpClient.PostAsync(path, null);
-
-            return await response.Content.ReadFromJsonAsync<bool>();
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<bool>();
+            return false;
         }
     }
 }
